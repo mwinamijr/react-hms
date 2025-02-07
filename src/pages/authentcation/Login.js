@@ -11,8 +11,6 @@ import AuthWrapper1 from "./../../components/authentication/AuthWrapper1";
 import AuthLogin from "./../../components/authentication/auth-forms/AuthLogin";
 import AuthCardWrapper from "./../../components/authentication/AuthCardWrapper";
 
-// assets
-
 // ================================|| AUTH3 - LOGIN ||================================ //
 
 const Login = () => {
@@ -43,9 +41,10 @@ const Login = () => {
                   justifyContent="center"
                 >
                   <Grid item sx={{ mb: 3 }}>
-                    <Link to="#">
+                    {/* Remove the Link wrapping Logo */}
+                    <div onClick={() => (window.location.href = "#")}>
                       <Logo />
-                    </Link>
+                    </div>
                   </Grid>
                   <Grid item xs={12}>
                     <Grid

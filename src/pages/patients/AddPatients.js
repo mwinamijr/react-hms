@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   TextField,
   Button,
@@ -17,13 +17,15 @@ import {
   resetCreateState,
 } from "../../store/patient/patientSlice";
 import dayjs from "dayjs";
-import { DatePicker } from "@mui/x-date-pickers";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 
 const AddPatient = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { loadingCreate, errorCreate, successCreate } = useSelector(
-    (state) => state.patient
+    (state) => state.getPatients
   );
 
   useEffect(() => {
@@ -77,6 +79,16 @@ const AddPatient = () => {
 
   return (
     <Card>
+      <Link
+        to="/management/patients"
+        style={{
+          textDecoration: "none",
+          marginBottom: "10px",
+          display: "block",
+        }}
+      >
+        <Button variant="outlined">Go Back</Button>
+      </Link>
       <CardContent>
         <Typography variant="h5" gutterBottom>
           Register Patient
@@ -115,13 +127,15 @@ const AddPatient = () => {
               />
             </Grid>
             <Grid item xs={12} md={4}>
-              <DatePicker
-                label="Date of Birth"
-                value={formData.date_of_birth}
-                onChange={handleDateChange}
-                format="DD/MM/YYYY"
-                fullWidth
-              />
+              <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Date of Birth"
+                  value={formData.date_of_birth}
+                  onChange={handleDateChange}
+                  format="DD/MM/YYYY"
+                  fullWidth
+                />
+              </LocalizationProvider>
             </Grid>
             <Grid item xs={12} md={4}>
               <TextField
