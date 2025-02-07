@@ -1,12 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App";
-import { CssBaseline } from "@mui/material";
+import { Provider } from "react-redux";
+import store from "./store/store";
+
+import "./assets/styles/style.css";
+import "react-perfect-scrollbar/dist/css/styles.css";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <React.StrictMode>
-    <CssBaseline />
+  <Provider store={store}>
     <App />
-  </React.StrictMode>
+  </Provider>
 );
