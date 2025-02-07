@@ -1,45 +1,81 @@
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import {
-  Container,
+  CircularProgress,
+  Alert,
+  Breadcrumbs,
   Typography,
   Button,
-  TextField,
+  IconButton,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
   TableRow,
+  TextField,
   Paper,
-  IconButton,
 } from "@mui/material";
-import { Add, CloudUpload, Edit, Delete } from "@mui/icons-material";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchPatients, deletePatient } from "../redux/slices/patientsSlice";
+import {
+  Visibility,
+  Edit,
+  Delete,
+  PersonAdd,
+  CloudUpload,
+} from "@mui/icons-material";
 
-const Patients = () => {
+import { listPatients, deletePatient } from "../../store/patient/patientSlice";
+
+const PatientList = () => {
   const dispatch = useDispatch();
-  const { patients, loading } = useSelector((state) => state.patients);
+
+  const { loading, error, patients } = useSelector(
+    (state) => state.getPatients
+  );
 
   useEffect(() => {
-    dispatch(fetchPatients());
+    dispatch(listPatients());
   }, [dispatch]);
 
+  const handleDelete = (id) => {
+    dispatch(deletePatient(id));
+  };
+
   return (
-    <Container maxWidth="lg">
-      <Typography variant="h4" gutterBottom>
-        Patients List
+    <div>
+      {/* Breadcrumb Navigation */}
+      <Breadcrumbs aria-label="breadcrumb" sx={{ marginBottom: 2 }}>
+        <Link
+          to="/dashboard"
+          style={{ textDecoration: "none", color: "inherit" }}
+        >
+          Home
+        </Link>
+        <Typography color="textPrimary">Patients</Typography>
+      </Breadcrumbs>
+
+      {/* Title */}
+      <Typography variant="h4" align="center" gutterBottom>
+        Patients
       </Typography>
 
       {/* Action Buttons */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "20px" }}>
-        <Button variant="contained" color="primary" startIcon={<Add />}>
-          Add New Patient
+      <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
+        <Button
+          variant="contained"
+          startIcon={<PersonAdd />}
+          component={Link}
+          to="/management/patients/add"
+        >
+          Add Patient
         </Button>
         <Button
           variant="contained"
           color="secondary"
           startIcon={<CloudUpload />}
+          component={Link}
+          to="/management/patients/upload"
         >
           Bulk Upload
         </Button>
@@ -53,65 +89,65 @@ const Patients = () => {
         style={{ marginBottom: "20px" }}
       />
 
-      {/* Patients Table */}
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow>
-              {[
-                "Patient Number",
-                "Name",
-                "Phone",
-                "DOB",
-                "Reg Date",
-                "Gender",
-                "Insurance No.",
-                "Status",
-                "Action",
-              ].map((header) => (
-                <TableCell key={header} style={{ fontWeight: "bold" }}>
-                  {header}
-                </TableCell>
-              ))}
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {loading ? (
+      {/* Error Message */}
+      {error && <Alert severity="error">{error}</Alert>}
+
+      {/* Loading Indicator */}
+      {loading ? (
+        <div
+          style={{ display: "flex", justifyContent: "center", marginTop: 20 }}
+        >
+          <CircularProgress />
+        </div>
+      ) : (
+        <TableContainer component={Paper}>
+          <Table>
+            <TableHead>
               <TableRow>
-                <TableCell colSpan={9} align="center">
-                  Loading...
-                </TableCell>
+                <TableCell>Patient ID</TableCell>
+                <TableCell>Full Name</TableCell>
+                <TableCell>Phone</TableCell>
+                <TableCell>Department</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
-            ) : (
-              patients.map((patient) => (
+            </TableHead>
+            <TableBody>
+              {patients.map((patient) => (
                 <TableRow key={patient.id}>
-                  <TableCell>{patient.patientNumber}</TableCell>
-                  <TableCell>{patient.name}</TableCell>
-                  <TableCell>{patient.phoneNumber}</TableCell>
-                  <TableCell>{patient.dob}</TableCell>
-                  <TableCell>{patient.registrationDate}</TableCell>
-                  <TableCell>{patient.gender}</TableCell>
-                  <TableCell>{patient.insuranceNumber}</TableCell>
-                  <TableCell>{patient.status}</TableCell>
+                  <TableCell>{patient.id}</TableCell>
+                  <TableCell>{`${patient.first_name} ${patient.last_name}`}</TableCell>
+                  <TableCell>{patient.phone}</TableCell>
+                  <TableCell>{patient.department?.name || "N/A"}</TableCell>
                   <TableCell>
-                    <IconButton color="primary">
+                    <IconButton
+                      component={Link}
+                      to={`/patients/${patient.id}`}
+                      color="primary"
+                    >
+                      <Visibility />
+                    </IconButton>
+                    <IconButton
+                      component={Link}
+                      to={`/patients/${patient.id}/edit`}
+                      color="success"
+                    >
                       <Edit />
                     </IconButton>
                     <IconButton
-                      color="secondary"
-                      onClick={() => dispatch(deletePatient(patient.id))}
+                      onClick={() => handleDelete(patient.id)}
+                      color="error"
                     >
                       <Delete />
                     </IconButton>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Container>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
+    </div>
   );
 };
 
-export default Patients;
+export default PatientList;

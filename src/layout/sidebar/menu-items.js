@@ -62,7 +62,7 @@ const management = {
           type: "item",
           url: "/management/patients",
           icon: icons.UserIcon,
-          breadcrumbs: false,
+          breadcrumbs: true,
         },
         {
           id: "merge patients",

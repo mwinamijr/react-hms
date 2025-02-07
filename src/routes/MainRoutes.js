@@ -3,9 +3,11 @@ import MainLayout from "../layout/MainLayout";
 import Dashboard from "../pages/Dashboard";
 import Finance from "../pages/Finance";
 import Medical from "../pages/Medical";
+import AddPatients from "../pages/patients/AddPatients";
 import Merge from "../pages/patients/Merge";
 import Movement from "../pages/patients/Movement";
 import Patients from "../pages/patients/Patients";
+import UploadPatients from "../pages/patients/UploadPatients";
 import Visit from "../pages/patients/Visit";
 
 const MainRoutes = {
@@ -31,6 +33,14 @@ const MainRoutes = {
         {
           path: "",
           element: <Patients />,
+        },
+        {
+          path: "add",
+          element: <AddPatients />,
+        },
+        {
+          path: "upload",
+          element: <UploadPatients />,
         },
         {
           path: "merge",
