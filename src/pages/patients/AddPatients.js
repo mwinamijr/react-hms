@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
   Breadcrumbs,
@@ -12,6 +12,8 @@ import {
   FormControlLabel,
   Checkbox,
   CircularProgress,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
@@ -32,14 +34,7 @@ const AddPatient = () => {
     (state) => state.getPatients
   );
 
-  useEffect(() => {
-    if (successCreate) {
-      dispatch(resetCreateState());
-      navigate("/management/patients");
-    }
-  }, [dispatch, successCreate, navigate]);
-
-  const [formData, setFormData] = React.useState({
+  const [formData, setFormData] = useState({
     first_name: "",
     middle_name: "",
     last_name: "",
@@ -59,6 +54,18 @@ const AddPatient = () => {
     insurance_policy_number: "",
     is_active: true,
   });
+
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+
+  useEffect(() => {
+    if (successCreate) {
+      setOpenSnackbar(true);
+      setTimeout(() => {
+        dispatch(resetCreateState());
+        navigate("/management/patients");
+      }, 2000);
+    }
+  }, [dispatch, successCreate, navigate]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -83,7 +90,6 @@ const AddPatient = () => {
 
   return (
     <div>
-      {/* Breadcrumb Navigation */}
       <Breadcrumbs aria-label="breadcrumb" sx={{ marginBottom: 2 }}>
         <Link
           to="/dashboard"
@@ -102,202 +108,207 @@ const AddPatient = () => {
 
       <Card sx={{ padding: 3, maxWidth: 800, margin: "auto", marginTop: 4 }}>
         <CardContent>
-          {/* Title */}
           <Typography variant="h4" align="center" gutterBottom>
             Add Patient
           </Typography>
           {error && <Message severity="error">{error}</Message>}
 
-          <div
-            style={{
-              display: "flex",
-              gap: "16px",
-              marginBottom: "16px",
-              marginTop: "16px",
-            }}
-          >
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={2}>
-                {/* Personal Info */}
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="First Name"
-                    name="first_name"
-                    value={formData.first_name}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Middle Name"
-                    name="middle_name"
-                    value={formData.middle_name}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Last Name"
-                    name="last_name"
-                    value={formData.last_name}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker
-                      label="Date of Birth"
-                      value={formData.date_of_birth}
-                      onChange={handleDateChange}
-                      format="DD/MM/YYYY"
-                      sx={{ width: "100%" }}
-                    />
-                  </LocalizationProvider>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                {/* Additional Info */}
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Occupation"
-                    name="occupation"
-                    value={formData.occupation}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                {/* Next of Kin */}
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Next of Kin Name"
-                    name="kin_name"
-                    value={formData.kin_name}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Next of Kin Relation"
-                    name="kin_relation"
-                    value={formData.kin_relation}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="Next of Kin Phone"
-                    name="kin_phone"
-                    value={formData.kin_phone}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                {/* Other Details */}
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    fullWidth
-                    label="National ID"
-                    name="national_id"
-                    value={formData.national_id}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    select
-                    fullWidth
-                    label="Marital Status"
-                    name="marital_status"
-                    value={formData.marital_status}
-                    onChange={handleChange}
-                  >
-                    <MenuItem value="single">Single</MenuItem>
-                    <MenuItem value="married">Married</MenuItem>
-                  </TextField>
-                </Grid>
-                <Grid item xs={12} md={4}>
-                  <TextField
-                    select
-                    fullWidth
-                    label="Payment Method"
-                    name="payment_method"
-                    value={formData.payment_method}
-                    onChange={handleChange}
-                  >
-                    <MenuItem value="cash">Cash</MenuItem>
-                    <MenuItem value="insurance">Insurance</MenuItem>
-                  </TextField>
-                </Grid>
-                <Grid item xs={12}>
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        checked={formData.priority}
-                        onChange={handleCheckboxChange}
-                        name="priority"
-                      />
-                    }
-                    label="Priority Patient"
-                  />
-                </Grid>
-                {/* Submit Button */}
-                <Grid item xs={12}>
-                  <Button
-                    type="submit"
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    disabled={loading}
-                    startIcon={
-                      loading ? (
-                        <CircularProgress size={24} color="inherit" />
-                      ) : null
-                    }
-                  >
-                    {loading ? "Adding patient ..." : "Add Patient"}
-                  </Button>
-                </Grid>
+          <form onSubmit={handleSubmit}>
+            <Grid container spacing={2}>
+              {/* Personal Info */}
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="First Name"
+                  name="first_name"
+                  value={formData.first_name}
+                  onChange={handleChange}
+                  required
+                />
               </Grid>
-            </form>
-          </div>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Middle Name"
+                  name="middle_name"
+                  value={formData.middle_name}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Last Name"
+                  name="last_name"
+                  value={formData.last_name}
+                  onChange={handleChange}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                  <DatePicker
+                    label="Date of Birth"
+                    value={formData.date_of_birth}
+                    onChange={handleDateChange}
+                    format="DD/MM/YYYY"
+                    sx={{ width: "100%" }}
+                  />
+                </LocalizationProvider>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Email"
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Phone"
+                  name="phone"
+                  value={formData.phone}
+                  onChange={handleChange}
+                  required
+                />
+              </Grid>
+              {/* Additional Info */}
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleChange}
+                  required
+                />
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <TextField
+                  fullWidth
+                  label="Occupation"
+                  name="occupation"
+                  value={formData.occupation}
+                  onChange={handleChange}
+                />
+              </Grid>
+              {/* Next of Kin */}
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Next of Kin Name"
+                  name="kin_name"
+                  value={formData.kin_name}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Next of Kin Relation"
+                  name="kin_relation"
+                  value={formData.kin_relation}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="Next of Kin Phone"
+                  name="kin_phone"
+                  value={formData.kin_phone}
+                  onChange={handleChange}
+                />
+              </Grid>
+              {/* Other Details */}
+              <Grid item xs={12} md={4}>
+                <TextField
+                  fullWidth
+                  label="National ID"
+                  name="national_id"
+                  value={formData.national_id}
+                  onChange={handleChange}
+                />
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Marital Status"
+                  name="marital_status"
+                  value={formData.marital_status}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="single">Single</MenuItem>
+                  <MenuItem value="married">Married</MenuItem>
+                </TextField>
+              </Grid>
+              <Grid item xs={12} md={4}>
+                <TextField
+                  select
+                  fullWidth
+                  label="Payment Method"
+                  name="payment_method"
+                  value={formData.payment_method}
+                  onChange={handleChange}
+                >
+                  <MenuItem value="cash">Cash</MenuItem>
+                  <MenuItem value="insurance">Insurance</MenuItem>
+                </TextField>
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formData.priority}
+                      onChange={handleCheckboxChange}
+                      name="priority"
+                    />
+                  }
+                  label="Priority Patient"
+                />
+              </Grid>
+              {/* Submit Button */}
+              <Grid item xs={12}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  disabled={loading}
+                  startIcon={
+                    loading ? (
+                      <CircularProgress size={24} color="inherit" />
+                    ) : null
+                  }
+                >
+                  {loading ? "Adding patient ..." : "Add Patient"}
+                </Button>
+              </Grid>
+            </Grid>
+          </form>
         </CardContent>
       </Card>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={2000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity="success"
+          sx={{ width: "100%" }}
+        >
+          Patient added successfully!
+        </Alert>
+      </Snackbar>
     </div>
   );
 };

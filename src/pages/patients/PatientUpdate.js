@@ -14,6 +14,8 @@ import {
   Paper,
   Grid,
   MenuItem,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import Message from "../../components/Message";
 import Loader from "../../components/Loader";
@@ -42,6 +44,10 @@ const PatientUpdate = () => {
     insurance_policy_number: "",
   });
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+
   useEffect(() => {
     dispatch(patientDetails(id));
   }, [dispatch, id]);
@@ -58,12 +64,36 @@ const PatientUpdate = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(updatePatient({ id, formData }));
-    navigate(`/patients/${id}`);
+    dispatch(updatePatient({ id, formData }))
+      .then(() => {
+        setSnackbarMessage("Patient updated successfully!");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+        setTimeout(() => navigate(`/patients/${id}`), 2000);
+      })
+      .catch(() => {
+        setSnackbarMessage("Failed to update patient. Please try again.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      });
   };
 
   return (
     <>
+      {/* Snackbar Notification */}
+      <Snackbar
+        open={snackbarOpen}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarOpen(false)}
+      >
+        <Alert
+          onClose={() => setSnackbarOpen(false)}
+          severity={snackbarSeverity}
+        >
+          {snackbarMessage}
+        </Alert>
+      </Snackbar>
+
       {/* Breadcrumb Navigation */}
       <Breadcrumbs aria-label="breadcrumb" sx={{ marginBottom: 2 }}>
         <Link
@@ -88,7 +118,7 @@ const PatientUpdate = () => {
           <div style={{ marginBottom: "16px" }}>
             <Typography align="center" variant="h4" gutterBottom>
               Update Patient Details
-            </Typography>{" "}
+            </Typography>
           </div>
 
           {loading && <Loader />}
@@ -190,68 +220,6 @@ const PatientUpdate = () => {
                     <MenuItem value="married">Married</MenuItem>
                   </TextField>
                 </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Next of Kin Name"
-                    name="kin_name"
-                    value={formData.kin_name}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Next of Kin Relation"
-                    name="kin_relation"
-                    value={formData.kin_relation}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Next of Kin Phone"
-                    name="kin_phone"
-                    value={formData.kin_phone}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    select
-                    fullWidth
-                    label="Payment Method"
-                    name="payment_method"
-                    value={formData.payment_method}
-                    onChange={handleChange}
-                  >
-                    <MenuItem value="cash">Cash</MenuItem>
-                    <MenuItem value="insurance">Insurance</MenuItem>
-                  </TextField>
-                </Grid>
-                {formData.payment_method === "insurance" && (
-                  <>
-                    <Grid item xs={12}>
-                      <TextField
-                        fullWidth
-                        label="Insurance Provider"
-                        name="insurance_provider"
-                        value={formData.insurance_provider}
-                        onChange={handleChange}
-                      />
-                    </Grid>
-                    <Grid item xs={12}>
-                      <TextField
-                        fullWidth
-                        label="Policy Number"
-                        name="insurance_policy_number"
-                        value={formData.insurance_policy_number}
-                        onChange={handleChange}
-                      />
-                    </Grid>
-                  </>
-                )}
               </Grid>
 
               <Button
