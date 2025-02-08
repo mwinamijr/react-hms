@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -14,6 +14,11 @@ import {
   TableRow,
   TextField,
   Paper,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  Button as MuiButton,
 } from "@mui/material";
 import {
   Visibility,
@@ -39,8 +44,21 @@ const PatientList = () => {
     dispatch(listPatients());
   }, [dispatch]);
 
+  const [openDialog, setOpenDialog] = useState(false);
+  const [deletePatientId, setDeletePatientId] = useState(null);
+
   const handleDelete = (id) => {
     dispatch(deletePatient(id));
+    setOpenDialog(false);
+  };
+
+  const handleClickOpen = (id) => {
+    setDeletePatientId(id);
+    setOpenDialog(true);
+  };
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false);
   };
 
   return (
@@ -132,8 +150,8 @@ const PatientList = () => {
                         <Edit />
                       </IconButton>
                       <IconButton
-                        onClick={() => handleDelete(patient.id)}
                         color="error"
+                        onClick={() => handleClickOpen(patient.id)}
                       >
                         <Delete />
                       </IconButton>
@@ -154,6 +172,26 @@ const PatientList = () => {
           </Table>
         </TableContainer>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Delete this patient?</DialogTitle>
+        <DialogContent>
+          Are you sure you want to delete this patient? This action cannot be
+          undone.
+        </DialogContent>
+        <DialogActions>
+          <MuiButton onClick={handleCloseDialog} color="primary">
+            Cancel
+          </MuiButton>
+          <MuiButton
+            onClick={() => handleDelete(deletePatientId)}
+            color="error"
+          >
+            Confirm
+          </MuiButton>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };
