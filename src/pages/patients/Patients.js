@@ -36,7 +36,6 @@ const PatientList = () => {
   );
 
   useEffect(() => {
-    console.log("Dispatching listPatients...");
     dispatch(listPatients());
   }, [dispatch]);
 

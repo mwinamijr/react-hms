@@ -31,15 +31,12 @@ export const listPatients = createAsyncThunk(
           Authorization: `Bearer ${userInfo.access}`,
         },
       };
-      console.log("Fetching patients..."); // Debugging
       const { data } = await axios.get(
         `${djangoUrl}/api/core/patients/`,
         config
       );
-      console.log("Patients Data:", data); // Debugging
       return data;
     } catch (error) {
-      console.error("Error fetching patients:", error); // Debugging
       return rejectWithValue(getErrorMessage(error));
     }
   }
@@ -201,20 +198,51 @@ const patientSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(patientDetails.pending, (state, action) => {
+        state.loading = true;
+      })
       .addCase(patientDetails.fulfilled, (state, action) => {
         state.patientDetails = action.payload;
       })
+      .addCase(patientDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(createPatient.pending, (state, action) => {
+        state.loading = true;
+      })
       .addCase(createPatient.fulfilled, (state, action) => {
+        state.loading = false;
         state.successCreate = true;
         state.createdPatient = action.payload;
       })
+      .addCase(createPatient.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updatePatient.pending, (state, action) => {
+        state.loading = true;
+      })
       .addCase(updatePatient.fulfilled, (state, action) => {
+        state.loading = false;
         state.patientDetails = action.payload;
       })
+      .addCase(updatePatient.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(deletePatient.pending, (state, action) => {
+        state.loading = true;
+      })
       .addCase(deletePatient.fulfilled, (state, action) => {
+        state.loading = false;
         state.patients = state.patients.filter(
           (patient) => patient.id !== action.payload
         );
+      })
+      .addCase(deletePatient.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
