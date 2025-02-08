@@ -2,8 +2,6 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  CircularProgress,
-  Alert,
   Breadcrumbs,
   Typography,
   Button,
@@ -23,8 +21,11 @@ import {
   Delete,
   PersonAdd,
   CloudUpload,
+  PersonOff,
 } from "@mui/icons-material";
 
+import Message from "../../components/Message";
+import Loader from "../../components/Loader";
 import { listPatients, deletePatient } from "../../store/patient/patientSlice";
 
 const PatientList = () => {
@@ -35,6 +36,7 @@ const PatientList = () => {
   );
 
   useEffect(() => {
+    console.log("Dispatching listPatients...");
     dispatch(listPatients());
   }, [dispatch]);
 
@@ -90,15 +92,11 @@ const PatientList = () => {
       />
 
       {/* Error Message */}
-      {error && <Alert severity="error">{error}</Alert>}
+      {error && <Message severity="error">{error}</Message>}
 
       {/* Loading Indicator */}
       {loading ? (
-        <div
-          style={{ display: "flex", justifyContent: "center", marginTop: 20 }}
-        >
-          <CircularProgress />
-        </div>
+        <Loader />
       ) : (
         <TableContainer component={Paper}>
           <Table>
@@ -112,36 +110,47 @@ const PatientList = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {patients.map((patient) => (
-                <TableRow key={patient.id}>
-                  <TableCell>{patient.id}</TableCell>
-                  <TableCell>{`${patient.first_name} ${patient.last_name}`}</TableCell>
-                  <TableCell>{patient.phone}</TableCell>
-                  <TableCell>{patient.department?.name || "N/A"}</TableCell>
-                  <TableCell>
-                    <IconButton
-                      component={Link}
-                      to={`/patients/${patient.id}`}
-                      color="primary"
-                    >
-                      <Visibility />
-                    </IconButton>
-                    <IconButton
-                      component={Link}
-                      to={`/patients/${patient.id}/edit`}
-                      color="success"
-                    >
-                      <Edit />
-                    </IconButton>
-                    <IconButton
-                      onClick={() => handleDelete(patient.id)}
-                      color="error"
-                    >
-                      <Delete />
-                    </IconButton>
+              {patients.length > 0 ? (
+                patients.map((patient) => (
+                  <TableRow key={patient.id}>
+                    <TableCell>{patient.id}</TableCell>
+                    <TableCell>{`${patient.first_name} ${patient.last_name}`}</TableCell>
+                    <TableCell>{patient.phone}</TableCell>
+                    <TableCell>{patient.department?.name || "N/A"}</TableCell>
+                    <TableCell>
+                      <IconButton
+                        component={Link}
+                        to={`/patients/${patient.id}`}
+                        color="primary"
+                      >
+                        <Visibility />
+                      </IconButton>
+                      <IconButton
+                        component={Link}
+                        to={`/patients/${patient.id}/edit`}
+                        color="success"
+                      >
+                        <Edit />
+                      </IconButton>
+                      <IconButton
+                        onClick={() => handleDelete(patient.id)}
+                        color="error"
+                      >
+                        <Delete />
+                      </IconButton>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} align="center">
+                    <PersonOff sx={{ fontSize: 50, color: "gray" }} />
+                    <Typography variant="body1" color="textSecondary">
+                      No patients found
+                    </Typography>
                   </TableCell>
                 </TableRow>
-              ))}
+              )}
             </TableBody>
           </Table>
         </TableContainer>

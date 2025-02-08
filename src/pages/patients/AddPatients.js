@@ -10,6 +10,7 @@ import {
   Typography,
   FormControlLabel,
   Checkbox,
+  CircularProgress,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -24,7 +25,7 @@ import { DatePicker } from "@mui/x-date-pickers/DatePicker";
 const AddPatient = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { loadingCreate, errorCreate, successCreate } = useSelector(
+  const { loading, error, successCreate } = useSelector(
     (state) => state.getPatients
   );
 
@@ -78,22 +79,18 @@ const AddPatient = () => {
   };
 
   return (
-    <Card>
-      <Link
-        to="/management/patients"
-        style={{
-          textDecoration: "none",
-          marginBottom: "10px",
-          display: "block",
-        }}
-      >
-        <Button variant="outlined">Go Back</Button>
+    <Card sx={{ padding: 3, maxWidth: 800, margin: "auto", marginTop: 4 }}>
+      <Link to="/management/patients" style={{ textDecoration: "none" }}>
+        <Button variant="outlined" sx={{ marginBottom: 2 }}>
+          Go Back
+        </Button>
       </Link>
       <CardContent>
-        <Typography variant="h5" gutterBottom>
-          Register Patient
+        {/* Title */}
+        <Typography variant="h4" align="center" gutterBottom>
+          Add Patient
         </Typography>
-        {errorCreate && <Typography color="error">{errorCreate}</Typography>}
+        {error && <Typography color="error">{error}</Typography>}
         <form onSubmit={handleSubmit}>
           <Grid container spacing={2}>
             {/* Personal Info */}
@@ -133,7 +130,7 @@ const AddPatient = () => {
                   value={formData.date_of_birth}
                   onChange={handleDateChange}
                   format="DD/MM/YYYY"
-                  fullWidth
+                  sx={{ width: "100%" }}
                 />
               </LocalizationProvider>
             </Grid>
@@ -158,7 +155,6 @@ const AddPatient = () => {
                 required
               />
             </Grid>
-
             {/* Additional Info */}
             <Grid item xs={12} md={6}>
               <TextField
@@ -179,7 +175,6 @@ const AddPatient = () => {
                 onChange={handleChange}
               />
             </Grid>
-
             {/* Next of Kin */}
             <Grid item xs={12} md={4}>
               <TextField
@@ -208,7 +203,6 @@ const AddPatient = () => {
                 onChange={handleChange}
               />
             </Grid>
-
             {/* Other Details */}
             <Grid item xs={12} md={4}>
               <TextField
@@ -245,29 +239,6 @@ const AddPatient = () => {
                 <MenuItem value="insurance">Insurance</MenuItem>
               </TextField>
             </Grid>
-            {formData.payment_method === "insurance" && (
-              <>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Insurance Provider"
-                    name="insurance_provider"
-                    value={formData.insurance_provider}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12} md={6}>
-                  <TextField
-                    fullWidth
-                    label="Insurance Policy Number"
-                    name="insurance_policy_number"
-                    value={formData.insurance_policy_number}
-                    onChange={handleChange}
-                  />
-                </Grid>
-              </>
-            )}
-
             <Grid item xs={12}>
               <FormControlLabel
                 control={
@@ -280,7 +251,6 @@ const AddPatient = () => {
                 label="Priority Patient"
               />
             </Grid>
-
             {/* Submit Button */}
             <Grid item xs={12}>
               <Button
@@ -288,9 +258,14 @@ const AddPatient = () => {
                 variant="contained"
                 color="primary"
                 fullWidth
-                disabled={loadingCreate}
+                disabled={loading}
+                startIcon={
+                  loading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : null
+                }
               >
-                {loadingCreate ? "Registering..." : "Register Patient"}
+                {loading ? "Adding patient ..." : "Add Patient"}
               </Button>
             </Grid>
           </Grid>

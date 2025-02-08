@@ -20,14 +20,26 @@ const getErrorMessage = (error) => {
 
 // Fetch all patients
 export const listPatients = createAsyncThunk(
-  "patients/listPatients",
-  async ({ name = "", phone = "", status = "" }, { rejectWithValue }) => {
+  "patient/listPatients",
+  async (_, { getState, rejectWithValue }) => {
     try {
-      const response = await axios.get(
-        `${djangoUrl}/api/core/patients/?name=${name}&phone=${phone}&status=${status}`
+      const {
+        getUsers: { userInfo },
+      } = getState();
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.access}`,
+        },
+      };
+      console.log("Fetching patients..."); // Debugging
+      const { data } = await axios.get(
+        `${djangoUrl}/api/core/patients/`,
+        config
       );
-      return response.data;
+      console.log("Patients Data:", data); // Debugging
+      return data;
     } catch (error) {
+      console.error("Error fetching patients:", error); // Debugging
       return rejectWithValue(getErrorMessage(error));
     }
   }
@@ -35,15 +47,15 @@ export const listPatients = createAsyncThunk(
 
 // Fetch a single patient by ID
 export const patientDetails = createAsyncThunk(
-  "patients/details",
+  "patient/details",
   async (id, { getState, rejectWithValue }) => {
     try {
       const {
-        auth: { userInfo },
+        getUsers: { userInfo },
       } = getState();
       const config = {
         headers: {
-          Authorization: `Bearer ${userInfo.token}`,
+          Authorization: `Bearer ${userInfo.access}`,
         },
       };
       const { data } = await axios.get(
@@ -59,16 +71,16 @@ export const patientDetails = createAsyncThunk(
 
 // Add a new patient
 export const createPatient = createAsyncThunk(
-  "patients/create",
+  "patient/create",
   async (patientData, { getState, rejectWithValue }) => {
     try {
       const {
-        auth: { userInfo },
+        getUsers: { userInfo },
       } = getState();
       const config = {
         headers: {
           "Content-type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
+          Authorization: `Bearer ${userInfo.access}`,
         },
       };
       const { data } = await axios.post(
@@ -85,18 +97,18 @@ export const createPatient = createAsyncThunk(
 
 // Bulk upload patients
 export const bulkCreatePatients = createAsyncThunk(
-  "patients/bulkCreate",
+  "patient/bulkCreate",
   async (file, { getState, rejectWithValue }) => {
     try {
       const {
-        auth: { userInfo },
+        getUsers: { userInfo },
       } = getState();
       const formData = new FormData();
       formData.append("file", file);
       const config = {
         headers: {
           "Content-type": "multipart/form-data",
-          Authorization: `Bearer ${userInfo.token}`,
+          Authorization: `Bearer ${userInfo.access}`,
         },
       };
       const { data } = await axios.post(
@@ -113,15 +125,15 @@ export const bulkCreatePatients = createAsyncThunk(
 
 // Delete a patient
 export const deletePatient = createAsyncThunk(
-  "patients/delete",
+  "patient/delete",
   async (id, { getState, rejectWithValue }) => {
     try {
       const {
-        auth: { userInfo },
+        getUsers: { userInfo },
       } = getState();
       const config = {
         headers: {
-          Authorization: `Bearer ${userInfo.token}`,
+          Authorization: `Bearer ${userInfo.access}`,
         },
       };
       await axios.delete(`${djangoUrl}/api/core/patients/${id}/`, config);
@@ -134,16 +146,16 @@ export const deletePatient = createAsyncThunk(
 
 // Update patient details
 export const updatePatient = createAsyncThunk(
-  "patients/update",
+  "patient/update",
   async ({ id, ...values }, { getState, rejectWithValue }) => {
     try {
       const {
-        auth: { userInfo },
+        getUsers: { userInfo },
       } = getState();
       const config = {
         headers: {
           "Content-type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
+          Authorization: `Bearer ${userInfo.access}`,
         },
       };
       const { data } = await axios.put(
@@ -159,8 +171,8 @@ export const updatePatient = createAsyncThunk(
 );
 
 // Patient slice
-const patientsSlice = createSlice({
-  name: "patients",
+const patientSlice = createSlice({
+  name: "patient",
   initialState: {
     patients: [],
     patientDetails: null,
@@ -207,5 +219,5 @@ const patientsSlice = createSlice({
   },
 });
 
-export const { resetCreateState } = patientsSlice.actions;
-export default patientsSlice.reducer;
+export const { resetCreateState } = patientSlice.actions;
+export default patientSlice.reducer;

@@ -16,7 +16,6 @@ import { setMenu } from "./../store/slices/customizationSlice"; // Redux Toolkit
 import { drawerWidth } from "./../store/constant";
 import navigation from "./sidebar/menu-items";
 import Breadcrumbs from "./../components/extended/BreadCrumbs";
-import Customization from "./Customization";
 import Header from "./header/Header";
 import Sidebar from "./sidebar/Sidebar";
 
@@ -122,7 +121,6 @@ const MainLayout = () => {
         />
         <Outlet />
       </Main>
-      <Customization />
     </Box>
   );
 };
