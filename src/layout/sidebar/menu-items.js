@@ -12,6 +12,8 @@ import {
   UsergroupAddOutlined,
 } from "@ant-design/icons";
 import { Merge, MoveToInboxOutlined } from "@mui/icons-material";
+import logout from "../../store/user/userSlice";
+import { useDispatch } from "react-redux";
 
 // constant
 const icons = {
@@ -195,19 +197,21 @@ const reports = {
   ],
 };
 
+const dispatch = useDispatch;
+
 const handleLogout = async () => {
-  console.log("Logout");
+  dispatch(logout());
 };
 
-const logout = {
-  id: "logout",
+const signout = {
+  id: "signout",
   type: "group",
   children: [
     {
-      id: "logout",
+      id: "signout",
       title: "Logout",
       type: "item",
-      onClick: handleLogout(),
+      onClick: handleLogout,
       icon: icons.LogoutIcon,
     },
   ],
@@ -222,7 +226,7 @@ const menuItems = {
     pharmacy,
     finance,
     reports,
-    logout,
+    signout,
   ],
 };
 

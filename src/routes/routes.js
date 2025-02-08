@@ -54,7 +54,7 @@ const MainRoutes = {
 const AuthenticationRoutes = {
   path: "/",
   element: <MinimalLayout />,
-  children: [{ path: "authentication/login", element: <AuthLogin /> }],
+  children: [{ path: "login", element: <AuthLogin /> }],
 };
 
 // Combine Routes

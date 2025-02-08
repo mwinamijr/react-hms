@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 
 // icons
+import CircularProgress from "@mui/material/CircularProgress";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
@@ -32,8 +33,7 @@ const Login = () => {
   const theme = useTheme();
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const user = useSelector((state) => state.getUsers);
-  const { error, loading, userInfo } = user;
+  const { error, loading, userInfo } = useSelector((state) => state.getUsers);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -74,7 +74,6 @@ const Login = () => {
           onChange={(e) => setEmail(e.target.value)}
           label="Email Address"
         />
-        {error && <FormHelperText error>{error}</FormHelperText>}
       </FormControl>
 
       <FormControl
@@ -102,7 +101,6 @@ const Login = () => {
           }
           label="Password"
         />
-        {error && <FormHelperText error>{error}</FormHelperText>}
       </FormControl>
 
       <Stack
@@ -146,8 +144,11 @@ const Login = () => {
           type="submit"
           variant="contained"
           color="secondary"
+          startIcon={
+            loading ? <CircularProgress size={20} color="inherit" /> : null
+          }
         >
-          Sign in
+          {loading ? "Signing in..." : "Sign in"}
         </Button>
       </Box>
     </form>
