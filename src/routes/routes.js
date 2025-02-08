@@ -13,6 +13,8 @@ import Movement from "../pages/patients/Movement";
 import Patients from "../pages/patients/Patients";
 import UploadPatients from "../pages/patients/UploadPatients";
 import Visit from "../pages/patients/Visit";
+import PatientDetails from "../pages/patients/PatientDetails";
+import PatientUpdate from "../pages/patients/PatientUpdate";
 
 // Main Routes
 const MainRoutes = {
@@ -28,6 +30,8 @@ const MainRoutes = {
       path: "management/patients",
       children: [
         { path: "", element: <Patients /> },
+        { path: ":id", element: <PatientDetails /> },
+        { path: ":id/edit", element: <PatientUpdate /> },
         { path: "add", element: <AddPatients /> },
         { path: "upload", element: <UploadPatients /> },
         { path: "merge", element: <Merge /> },

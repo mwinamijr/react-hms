@@ -119,14 +119,14 @@ const PatientList = () => {
                     <TableCell>
                       <IconButton
                         component={Link}
-                        to={`/patients/${patient.id}`}
+                        to={`/management/patients/${patient.id}`}
                         color="primary"
                       >
                         <Visibility />
                       </IconButton>
                       <IconButton
                         component={Link}
-                        to={`/patients/${patient.id}/edit`}
+                        to={`/management/patients/${patient.id}/edit`}
                         color="success"
                       >
                         <Edit />

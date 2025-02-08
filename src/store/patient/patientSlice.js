@@ -172,7 +172,7 @@ const patientSlice = createSlice({
   name: "patient",
   initialState: {
     patients: [],
-    patientDetails: null,
+    patient: null,
     loading: false,
     error: null,
     successCreate: false,
@@ -202,7 +202,8 @@ const patientSlice = createSlice({
         state.loading = true;
       })
       .addCase(patientDetails.fulfilled, (state, action) => {
-        state.patientDetails = action.payload;
+        state.loading = false;
+        state.patient = action.payload;
       })
       .addCase(patientDetails.rejected, (state, action) => {
         state.loading = false;
