@@ -144,7 +144,7 @@ export const deleteDepartment = createAsyncThunk(
 // Update department details
 export const updateDepartment = createAsyncThunk(
   "department/update",
-  async ({ id, ...values }, { getState, rejectWithValue }) => {
+  async ({ id, formData }, { getState, rejectWithValue }) => {
     try {
       const {
         getUsers: { userInfo },
@@ -157,7 +157,7 @@ export const updateDepartment = createAsyncThunk(
       };
       const { data } = await axios.put(
         `${djangoUrl}/api/users/departments/${id}/`,
-        values,
+        formData,
         config
       );
       return data;

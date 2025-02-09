@@ -4,18 +4,19 @@ import axios from "axios";
 const djangoUrl = "http://127.0.0.1:8000";
 
 const getErrorMessage = (error) => {
-  if (error.response && error.response.data) {
-    if (typeof error.response.data === "string") {
-      return error.response.data;
-    } else if (error.response.data.detail) {
-      return error.response.data.detail;
-    } else {
-      return JSON.stringify(error.response.data);
+  if (error.response) {
+    if (error.response.data) {
+      if (typeof error.response.data === "string") {
+        return error.response.data;
+      } else if (error.response.data.detail) {
+        return error.response.data.detail;
+      } else {
+        return JSON.stringify(error.response.data);
+      }
     }
   }
   return error.message || "An unknown error occurred";
 };
-
 // Login
 export const login = createAsyncThunk(
   "user/login",
@@ -38,44 +39,20 @@ export const login = createAsyncThunk(
 // Register User
 export const register = createAsyncThunk(
   "user/register",
-  async (
-    {
-      firstName,
-      middleName,
-      lastName,
-      email,
-      phone,
-      password,
-      qualification,
-      departmentId,
-      role,
-    },
-    { rejectWithValue, getState }
-  ) => {
+  async (userData, { rejectWithValue, getState }) => {
     try {
-      const { userInfo } = getState().user;
-      if (!userInfo) throw new Error("Unauthorized request");
-
+      const {
+        getUsers: { userInfo },
+      } = getState();
       const config = {
         headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
+          Authorization: `Bearer ${userInfo.access}`,
         },
       };
 
       const { data } = await axios.post(
-        `${djangoUrl}/api/users/users/`,
-        {
-          first_name: firstName,
-          middle_name: middleName,
-          last_name: lastName,
-          email,
-          phone,
-          password,
-          qualification,
-          department: departmentId,
-          role,
-        },
+        `${djangoUrl}/api/users/`,
+        userData,
         config
       );
       return data;
@@ -86,24 +63,20 @@ export const register = createAsyncThunk(
 );
 
 // Get User Details
-export const getUserDetails = createAsyncThunk(
+export const userDetails = createAsyncThunk(
   "user/details",
   async (id, { getState, rejectWithValue }) => {
     try {
-      const { userInfo } = getState().user;
-      if (!userInfo) throw new Error("Unauthorized request");
-
+      const {
+        getUsers: { userInfo },
+      } = getState();
       const config = {
         headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
+          Authorization: `Bearer ${userInfo.access}`,
         },
       };
 
-      const { data } = await axios.get(
-        `${djangoUrl}/api/users/users/${id}/`,
-        config
-      );
+      const { data } = await axios.get(`${djangoUrl}/api/users/${id}/`, config);
       return data;
     } catch (error) {
       return rejectWithValue(getErrorMessage(error));
@@ -114,25 +87,18 @@ export const getUserDetails = createAsyncThunk(
 // List Users
 export const listUsers = createAsyncThunk(
   "user/list",
-  async (
-    { first_name = "", last_name = "", email = "" },
-    { getState, rejectWithValue }
-  ) => {
+  async (_, { getState, rejectWithValue }) => {
     try {
-      const { userInfo } = getState().user;
-      if (!userInfo) throw new Error("Unauthorized request");
-
+      const {
+        getUsers: { userInfo },
+      } = getState();
       const config = {
         headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
+          Authorization: `Bearer ${userInfo.access}`,
         },
       };
 
-      const response = await axios.get(
-        `${djangoUrl}/api/users/users/?first_name=${first_name}&last_name=${last_name}&email=${email}`,
-        config
-      );
+      const response = await axios.get(`${djangoUrl}/api/users/`, config);
       return response.data;
     } catch (error) {
       return rejectWithValue(getErrorMessage(error));
@@ -145,18 +111,43 @@ export const deleteUser = createAsyncThunk(
   "user/delete",
   async (id, { getState, rejectWithValue }) => {
     try {
-      const { userInfo } = getState().user;
-      if (!userInfo) throw new Error("Unauthorized request");
-
+      const {
+        getUsers: { userInfo },
+      } = getState();
       const config = {
         headers: {
-          "Content-type": "application/json",
-          Authorization: `Bearer ${userInfo.token}`,
+          Authorization: `Bearer ${userInfo.access}`,
         },
       };
 
-      await axios.delete(`${djangoUrl}/api/users/users/${id}/`, config);
+      await axios.delete(`${djangoUrl}/api/users/${id}/`, config);
       return id; // Return ID to remove from the list if needed
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  }
+);
+
+// Update user details
+export const updateUser = createAsyncThunk(
+  "user/update",
+  async ({ id, formData }, { getState, rejectWithValue }) => {
+    try {
+      const {
+        getUsers: { userInfo },
+      } = getState();
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${userInfo.access}`,
+        },
+      };
+      const { data } = await axios.put(
+        `${djangoUrl}/api/users/${id}/`,
+        formData,
+        config
+      );
+      return data;
     } catch (error) {
       return rejectWithValue(getErrorMessage(error));
     }
@@ -186,6 +177,11 @@ const userSlice = createSlice({
     resetError(state) {
       state.error = null;
     },
+    resetCreateState: (state) => {
+      state.successCreate = false;
+      state.createdUser = null;
+      state.error = null;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -213,18 +209,53 @@ const userSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      .addCase(getUserDetails.fulfilled, (state, action) => {
+      .addCase(userDetails.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(userDetails.fulfilled, (state, action) => {
+        state.loading = false;
         state.user = action.payload;
       })
+      .addCase(userDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(listUsers.pending, (state, action) => {
+        state.loading = true;
+      })
       .addCase(listUsers.fulfilled, (state, action) => {
+        state.loading = false;
         state.users = action.payload;
+      })
+      .addCase(listUsers.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateUser.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.userDetails = action.payload;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(deleteUser.pending, (state, action) => {
+        state.loading = true;
       })
       .addCase(deleteUser.fulfilled, (state, action) => {
         state.successDelete = true;
         state.users = state.users.filter((user) => user.id !== action.payload);
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });
 
-export const { logout, resetSuccessDelete, resetError } = userSlice.actions;
+export const { logout, resetSuccessDelete, resetError, resetCreateState } =
+  userSlice.actions;
 export default userSlice.reducer;

@@ -5,16 +5,24 @@ import MainLayout from "../layout/MainLayout";
 import MinimalLayout from "../layout/MinimalLayout";
 import AuthLogin from "../pages/authentcation/Login";
 import Dashboard from "../pages/Dashboard";
-import Finance from "../pages/Finance";
-import Medical from "../pages/Medical";
 import AddPatients from "../pages/patients/AddPatients";
 import Merge from "../pages/patients/Merge";
 import Movement from "../pages/patients/Movement";
 import Patients from "../pages/patients/Patients";
 import UploadPatients from "../pages/patients/UploadPatients";
-import Visit from "../pages/patients/Visit";
 import PatientDetails from "../pages/patients/PatientDetails";
 import PatientUpdate from "../pages/patients/PatientUpdate";
+import VisitList from "../pages/patients/visit/VistList";
+import DepartmentList from "../pages/management/department/DepartmentList";
+import DepartmentDetails from "../pages/management/department/DepartmentDetails";
+import DepartmentUpdate from "../pages/management/department/UpdateDepartment";
+import AddDepartment from "../pages/management/department/AddDepartment";
+import UploadDepartment from "../pages/management/department/UploadDepartment";
+import UserList from "../pages/users/UserList";
+import UserDetails from "../pages/users/UserDetails";
+import AddUser from "../pages/users/AddUser";
+import UserUpdate from "../pages/users/UserUpdate";
+import UploadUser from "../pages/users/UploadUser";
 
 // Main Routes
 const MainRoutes = {
@@ -35,16 +43,28 @@ const MainRoutes = {
         { path: "add", element: <AddPatients /> },
         { path: "upload", element: <UploadPatients /> },
         { path: "merge", element: <Merge /> },
-        { path: "visit", element: <Visit /> },
+        { path: "visit", element: <VisitList /> },
         { path: "movement", element: <Movement /> },
+      ],
+    },
+    {
+      path: "management/departments",
+      children: [
+        { path: "", element: <DepartmentList /> },
+        { path: ":id", element: <DepartmentDetails /> },
+        { path: ":id/edit", element: <DepartmentUpdate /> },
+        { path: "add", element: <AddDepartment /> },
+        { path: "upload", element: <UploadDepartment /> },
       ],
     },
     {
       path: "users",
       children: [
-        { path: "doctors", element: <Medical /> },
-        { path: "nurses", element: <Finance /> },
-        { path: "patients", element: <Patients /> },
+        { path: "", element: <UserList /> },
+        { path: ":id", element: <UserDetails /> },
+        { path: ":id/edit", element: <UserUpdate /> },
+        { path: "add", element: <AddUser /> },
+        { path: "upload", element: <UploadUser /> },
       ],
     },
     {

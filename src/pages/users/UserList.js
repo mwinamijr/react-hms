@@ -24,40 +24,34 @@ import {
   Visibility,
   Edit,
   Delete,
-  PersonOff,
+  PersonAdd,
   CloudUpload,
+  PersonOff,
 } from "@mui/icons-material";
 
-import { PlusOutlined } from "@ant-design/icons";
+import Message from "../../components/Message";
+import Loader from "../../components/Loader";
+import { listUsers, deleteUser } from "../../store/user/userSlice";
 
-import Message from "../../../components/Message";
-import Loader from "../../../components/Loader";
-import {
-  listDepartments,
-  deleteDepartment,
-} from "../../../store/management/departmentSlice";
-
-const DepartmentList = () => {
+const UserList = () => {
   const dispatch = useDispatch();
 
-  const { loading, error, departments } = useSelector(
-    (state) => state.getDepartments
-  );
+  const { loading, error, users } = useSelector((state) => state.getUsers);
 
   useEffect(() => {
-    dispatch(listDepartments());
+    dispatch(listUsers());
   }, [dispatch]);
 
   const [openDialog, setOpenDialog] = useState(false);
-  const [deleteDepartmentId, setDeleteDepartmentId] = useState(null);
+  const [deleteUserId, setDeleteUserId] = useState(null);
 
   const handleDelete = (id) => {
-    dispatch(deleteDepartment(id));
+    dispatch(deleteUser(id));
     setOpenDialog(false);
   };
 
   const handleClickOpen = (id) => {
-    setDeleteDepartmentId(id);
+    setDeleteUserId(id);
     setOpenDialog(true);
   };
 
@@ -75,30 +69,30 @@ const DepartmentList = () => {
         >
           Home
         </Link>
-        <Typography color="textPrimary">Departments</Typography>
+        <Typography color="textPrimary">Users</Typography>
       </Breadcrumbs>
 
       {/* Title */}
       <Typography variant="h4" align="center" gutterBottom>
-        Departments
+        Users
       </Typography>
 
       {/* Action Buttons */}
       <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
         <Button
           variant="contained"
-          startIcon={<PlusOutlined />}
+          startIcon={<PersonAdd />}
           component={Link}
-          to="/management/departments/add"
+          to="/users/add"
         >
-          Add Department
+          Add User
         </Button>
         <Button
           variant="contained"
           color="secondary"
           startIcon={<CloudUpload />}
           component={Link}
-          to="/management/departments/upload"
+          to="/users/upload"
         >
           Bulk Upload
         </Button>
@@ -108,7 +102,7 @@ const DepartmentList = () => {
       <TextField
         fullWidth
         variant="outlined"
-        label="Search Departments..."
+        label="Search Users..."
         style={{ marginBottom: "20px" }}
       />
 
@@ -123,39 +117,39 @@ const DepartmentList = () => {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Department ID</TableCell>
-                <TableCell>Department Name</TableCell>
-                <TableCell>Short Name</TableCell>
-                <TableCell>Description</TableCell>
+                <TableCell>User ID</TableCell>
+                <TableCell>Full Name</TableCell>
+                <TableCell>Email</TableCell>
+                <TableCell>Role</TableCell>
                 <TableCell>Actions</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {departments.length > 0 ? (
-                departments.map((department) => (
-                  <TableRow key={department.id}>
-                    <TableCell>{department?.id}</TableCell>
-                    <TableCell>{department?.name}</TableCell>
-                    <TableCell>{department?.short_name}</TableCell>
-                    <TableCell>{department?.description || "N/A"}</TableCell>
+              {users.length > 0 ? (
+                users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.id}</TableCell>
+                    <TableCell>{`${user?.first_name} ${user?.last_name}`}</TableCell>
+                    <TableCell>{user?.email}</TableCell>
+                    <TableCell>{user?.role || "N/A"}</TableCell>
                     <TableCell>
                       <IconButton
                         component={Link}
-                        to={`/management/departments/${department.id}`}
+                        to={`/users/${user.id}`}
                         color="primary"
                       >
                         <Visibility />
                       </IconButton>
                       <IconButton
                         component={Link}
-                        to={`/management/departments/${department.id}/edit`}
+                        to={`/users/${user.id}/edit`}
                         color="success"
                       >
                         <Edit />
                       </IconButton>
                       <IconButton
                         color="error"
-                        onClick={() => handleClickOpen(department.id)}
+                        onClick={() => handleClickOpen(user.id)}
                       >
                         <Delete />
                       </IconButton>
@@ -167,7 +161,7 @@ const DepartmentList = () => {
                   <TableCell colSpan={5} align="center">
                     <PersonOff sx={{ fontSize: 50, color: "gray" }} />
                     <Typography variant="body1" color="textSecondary">
-                      No departments found
+                      No users found
                     </Typography>
                   </TableCell>
                 </TableRow>
@@ -179,19 +173,16 @@ const DepartmentList = () => {
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Delete this department?</DialogTitle>
+        <DialogTitle>Delete this user?</DialogTitle>
         <DialogContent>
-          Are you sure you want to delete this department? This action cannot be
+          Are you sure you want to delete this user? This action cannot be
           undone.
         </DialogContent>
         <DialogActions>
           <MuiButton onClick={handleCloseDialog} color="primary">
             Cancel
           </MuiButton>
-          <MuiButton
-            onClick={() => handleDelete(deleteDepartmentId)}
-            color="error"
-          >
+          <MuiButton onClick={() => handleDelete(deleteUserId)} color="error">
             Confirm
           </MuiButton>
         </DialogActions>
@@ -200,4 +191,4 @@ const DepartmentList = () => {
   );
 };
 
-export default DepartmentList;
+export default UserList;

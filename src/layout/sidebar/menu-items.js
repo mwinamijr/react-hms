@@ -11,7 +11,11 @@ import {
   FileTextOutlined,
   UsergroupAddOutlined,
 } from "@ant-design/icons";
-import { Merge, MoveToInboxOutlined } from "@mui/icons-material";
+import {
+  Merge,
+  MoveToInboxOutlined,
+  BusinessCenter,
+} from "@mui/icons-material";
 import logout from "../../store/user/userSlice";
 import { useDispatch } from "react-redux";
 
@@ -30,6 +34,7 @@ const icons = {
   TreatmentIcon: ExperimentOutlined,
   PharmacyIcon: MedicineBoxOutlined,
   ReportIcon: FileTextOutlined,
+  DepartmentIcon: BusinessCenter,
 };
 
 // ==============================|| DASHBOARD MENU ITEMS ||============================== //
@@ -88,6 +93,13 @@ const management = {
           type: "item",
           url: "/management/patients/visit",
           icon: icons.RegisterIcon,
+        },
+        {
+          id: "department",
+          title: "Department",
+          type: "item",
+          url: "/management/departments",
+          icon: icons.DepartmentIcon,
         },
       ],
     },
@@ -184,15 +196,15 @@ const finance = {
 };
 
 const reports = {
-  id: "reports",
+  id: "users",
   type: "group",
   children: [
     {
-      id: "reports",
-      title: "Reports",
+      id: "users",
+      title: "Users",
       type: "item",
-      url: "/reports",
-      icon: icons.ReportIcon,
+      url: "/users",
+      icon: icons.UserIcon,
     },
   ],
 };
