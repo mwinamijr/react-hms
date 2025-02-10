@@ -1,8 +1,8 @@
 import React from "react";
-import { Alert } from "@mui/material";
+import { Alert } from "antd";
 
 function Message({ severity = "info", children }) {
-  return <Alert severity={severity}>{children}</Alert>;
+  return <Alert message={children} type={severity} showIcon />;
 }
 
 export default Message;

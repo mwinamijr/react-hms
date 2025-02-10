@@ -5,25 +5,25 @@ import Loader from "../../components/Loader";
 import Message from "../../components/Message";
 import { userDetails } from "../../store/user/userSlice";
 import {
-  Breadcrumbs,
+  Breadcrumb,
   Card,
-  CardContent,
+  Descriptions,
   Avatar,
+  Tag,
   Typography,
-  Grid,
   Button,
-  Paper,
-  Chip,
-  Divider,
-} from "@mui/material";
+  Col,
+  Row,
+  Space,
+} from "antd";
 import {
-  Email,
-  Phone,
-  Home,
-  Person,
-  Work,
-  CalendarToday,
-} from "@mui/icons-material";
+  UserOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  HomeOutlined,
+} from "@ant-design/icons";
+
+const { Title } = Typography;
 
 const UserDetails = () => {
   const dispatch = useDispatch();
@@ -36,123 +36,93 @@ const UserDetails = () => {
 
   return (
     <div>
-      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 3 }}>
-        <Link
-          to="/dashboard"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          Home
-        </Link>
-        <Link to="/users" style={{ textDecoration: "none", color: "inherit" }}>
-          Users
-        </Link>
-        <Typography color="primary" fontWeight={600}>
-          User Details
-        </Typography>
-      </Breadcrumbs>
+      <Breadcrumb style={{ marginBottom: 16 }}>
+        <Breadcrumb.Item>
+          <Link to="/dashboard">Home</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <Link to="/users">Users</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>User Update</Breadcrumb.Item>
+      </Breadcrumb>
 
-      <Card elevation={3} sx={{ p: 2 }}>
-        <Typography align="center" variant="h4" gutterBottom>
-          User Details
-        </Typography>
-        <Divider sx={{ mb: 2 }} />
-        <CardContent>
-          {loading ? (
-            <Loader />
-          ) : error ? (
-            <Message severity="error">{error}</Message>
-          ) : user ? (
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4} textAlign="center">
-                <Avatar sx={{ width: 120, height: 120, margin: "auto" }}>
-                  <Person fontSize="large" />
-                </Avatar>
-                <Typography variant="h5" fontWeight={600} sx={{ mt: 2 }}>
-                  {user.first_name} {user.middle_name} {user.last_name}
-                </Typography>
-                <Chip
-                  label={user.is_active ? "Active" : "Inactive"}
-                  color={user.is_active ? "success" : "error"}
-                  sx={{ mt: 1, fontSize: 14 }}
-                />
-              </Grid>
+      <Card title="User Profile">
+        {loading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant="danger">{error}</Message>
+        ) : user ? (
+          <div className="profile-container">
+            <div className="profile-header">
+              <Avatar
+                size={120}
+                icon={<UserOutlined />}
+                className="profile-avatar"
+              />
+              <Title level={3} className="profile-name">
+                {user.first_name} {user.middle_name} {user.last_name}
+              </Title>
+              <Tag color={user.is_active ? "green" : "red"}>
+                {user.is_active ? "Active" : "Inactive"}
+              </Tag>
 
-              <Grid item xs={12} md={8}>
-                <Paper sx={{ p: 3, mb: 2, bgcolor: "#f5f5f5" }}>
-                  <Typography variant="h6" fontWeight={700} gutterBottom>
-                    Basic Information
-                  </Typography>
-                  <Typography>ID: {user.user_number}</Typography>
-                  <Typography>Gender: {user.gender || "N/A"}</Typography>
-                  <Typography>DOB: {user.date_of_birth}</Typography>
-                  <Typography>Marital Status: {user.marital_status}</Typography>
-                  <Typography>
-                    Qualification: {user.qualification || "N/A"}
-                  </Typography>
-                  <Typography>
-                    <CalendarToday sx={{ verticalAlign: "middle", mr: 1 }} />{" "}
-                    Date Joined: {user.date_joined}
-                  </Typography>
-                </Paper>
+              <Row justify="center" className="profile-actions">
+                <Col>
+                  <Space>
+                    <Link to={`/users/${id}/edit`}>
+                      <Button type="primary">Edit Profile</Button>
+                    </Link>
+                    <Link to={`/users/${id}/print`}>
+                      <Button type="default">Print Profile</Button>
+                    </Link>
+                  </Space>
+                </Col>
+              </Row>
+            </div>
 
-                <Divider sx={{ my: 2 }} />
+            <Descriptions title="Basic Information" bordered column={2}>
+              <Descriptions.Item label="User ID">
+                {user.user_number}
+              </Descriptions.Item>
+              <Descriptions.Item label="Gender">
+                {user.gender || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Date of Birth">
+                {user.date_of_birth}
+              </Descriptions.Item>
+              <Descriptions.Item label="Marital Status">
+                {user.marital_status}
+              </Descriptions.Item>
+              <Descriptions.Item label="Qualification">
+                {user.qualification || "N/A"}
+              </Descriptions.Item>
+            </Descriptions>
 
-                <Paper sx={{ p: 3, mb: 2, bgcolor: "#f5f5f5" }}>
-                  <Typography variant="h6" fontWeight={700} gutterBottom>
-                    Work Information
-                  </Typography>
-                  <Typography>
-                    <Work sx={{ verticalAlign: "middle", mr: 1 }} /> Role:{" "}
-                    {user.role}
-                  </Typography>
-                  <Typography>
-                    Department: {user.department_name || "N/A"}
-                  </Typography>
-                  <Typography>
-                    Staff Status: {user.is_staff ? "Staff Member" : "Non-Staff"}
-                  </Typography>
-                </Paper>
+            <Descriptions title="Contact Information" bordered column={2}>
+              <Descriptions.Item label="Email">
+                <MailOutlined /> {user.email || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Phone">
+                <PhoneOutlined /> {user.phone || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Address">
+                <HomeOutlined /> {user.address || "N/A"}
+              </Descriptions.Item>
+            </Descriptions>
 
-                <Divider sx={{ my: 2 }} />
-
-                <Paper sx={{ p: 3, mb: 2, bgcolor: "#f5f5f5" }}>
-                  <Typography variant="h6" fontWeight={700} gutterBottom>
-                    Contact Information
-                  </Typography>
-                  <Typography>
-                    <Email sx={{ verticalAlign: "middle", mr: 1 }} />{" "}
-                    {user.email}
-                  </Typography>
-                  <Typography>
-                    <Phone sx={{ verticalAlign: "middle", mr: 1 }} />{" "}
-                    {user.phone}
-                  </Typography>
-                  <Typography>
-                    <Home sx={{ verticalAlign: "middle", mr: 1 }} />{" "}
-                    {user.address}
-                  </Typography>
-                </Paper>
-
-                <Divider sx={{ my: 2 }} />
-
-                <Grid container spacing={2} sx={{ mt: 3 }}>
-                  <Grid item>
-                    <Button
-                      variant="contained"
-                      component={Link}
-                      to={`/users/${id}/edit`}
-                      color="primary"
-                    >
-                      Edit Profile
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-          ) : (
-            <Message severity="error">No user found</Message>
-          )}
-        </CardContent>
+            <Descriptions title="Work Information" bordered column={2}>
+              <Descriptions.Item label="Role">{user.role}</Descriptions.Item>
+              <Descriptions.Item label="Department">
+                {user.department_name || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Staff Status">
+                {user.is_staff ? "Staff Member" : "Non-Staff"}
+              </Descriptions.Item>
+            </Descriptions>
+          </div>
+        ) : (
+          <Message variant="info">No user found</Message>
+        )}
       </Card>
     </div>
   );

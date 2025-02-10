@@ -85,20 +85,7 @@ const AddUser = () => {
 
   useEffect(() => {
     if (successCreate) {
-      setTimeout(() => {
-        dispatch(resetCreateState())
-          .then(() => {
-            setSnackbarMessage("User Added successfully!");
-            setSnackbarSeverity("success");
-            setSnackbarOpen(true);
-          })
-          .catch(() => {
-            setSnackbarMessage("Failed to add user. Please try again.");
-            setSnackbarSeverity("error");
-            setSnackbarOpen(true);
-          });
-        navigate("/users");
-      }, 2000);
+      dispatch(resetCreateState());
     }
   }, [dispatch, successCreate, navigate]);
 
@@ -145,7 +132,18 @@ const AddUser = () => {
         : null,
     };
 
-    dispatch(register(formattedData));
+    dispatch(register(formattedData))
+      .then(() => {
+        setSnackbarMessage("User Added successfully!");
+        setSnackbarSeverity("success");
+        setSnackbarOpen(true);
+      })
+      .catch(() => {
+        setSnackbarMessage("Failed to add user. Please try again.");
+        setSnackbarSeverity("error");
+        setSnackbarOpen(true);
+      });
+    navigate("/users");
   };
 
   return (

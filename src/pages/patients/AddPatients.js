@@ -1,31 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  Breadcrumbs,
-  TextField,
+  Breadcrumb,
+  Input,
   Button,
   Card,
-  CardContent,
-  Grid,
-  MenuItem,
+  Row,
+  Col,
+  Select,
   Typography,
-  FormControlLabel,
   Checkbox,
-  CircularProgress,
-  Snackbar,
-  Alert,
-} from "@mui/material";
+  Spin,
+  message,
+  DatePicker,
+} from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import dayjs from "dayjs";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { DatePicker } from "@mui/x-date-pickers/DatePicker";
-
 import {
   createPatient,
   resetCreateState,
 } from "../../store/patient/patientSlice";
-import Message from "../../components/Message";
+
+const { Title } = Typography;
+const { Option } = Select;
 
 const AddPatient = () => {
   const dispatch = useDispatch();
@@ -55,15 +52,11 @@ const AddPatient = () => {
     is_active: true,
   });
 
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-
   useEffect(() => {
     if (successCreate) {
-      setOpenSnackbar(true);
-      setTimeout(() => {
-        dispatch(resetCreateState());
-        navigate("/management/patients");
-      }, 2000);
+      dispatch(resetCreateState());
+      message.success("Patient added successfully!");
+      navigate("/management/patients");
     }
   }, [dispatch, successCreate, navigate]);
 
@@ -83,232 +76,184 @@ const AddPatient = () => {
     e.preventDefault();
     const formattedData = {
       ...formData,
-      date_of_birth: dayjs(formData.date_of_birth).format("YYYY-MM-DD"),
+      date_of_birth: formData.date_of_birth
+        ? dayjs(formData.date_of_birth).format("YYYY-MM-DD")
+        : null,
     };
     dispatch(createPatient(formattedData));
   };
 
   return (
     <div>
-      <Breadcrumbs aria-label="breadcrumb" sx={{ marginBottom: 2 }}>
-        <Link
-          to="/dashboard"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          Home
-        </Link>
-        <Link
-          to="/management/patients"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          Patients
-        </Link>
-        <Typography color="textPrimary">Patient details</Typography>
-      </Breadcrumbs>
+      <Breadcrumb style={{ marginBottom: 16 }}>
+        <Breadcrumb.Item>
+          <Link to="/dashboard">Home</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <Link to="/management/patients">Patients</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>Patient Details</Breadcrumb.Item>
+      </Breadcrumb>
 
-      <Card sx={{ padding: 3, maxWidth: 800, margin: "auto", marginTop: 4 }}>
-        <CardContent>
-          <Typography variant="h4" align="center" gutterBottom>
-            Add Patient
-          </Typography>
-          {error && <Message severity="error">{error}</Message>}
+      <Card style={{ maxWidth: 800, margin: "auto", marginTop: 20 }}>
+        <Title level={3} style={{ textAlign: "center" }}>
+          Add Patient
+        </Title>
+        {error && message.error(error)}
 
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
-              {/* Personal Info */}
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="First Name"
-                  name="first_name"
-                  value={formData.first_name}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Middle Name"
-                  name="middle_name"
-                  value={formData.middle_name}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Last Name"
-                  name="last_name"
-                  value={formData.last_name}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                  <DatePicker
-                    label="Date of Birth"
-                    value={formData.date_of_birth}
-                    onChange={handleDateChange}
-                    format="DD/MM/YYYY"
-                    sx={{ width: "100%" }}
-                  />
-                </LocalizationProvider>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Phone"
-                  name="phone"
-                  value={formData.phone}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-              {/* Additional Info */}
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Address"
-                  name="address"
-                  value={formData.address}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={6}>
-                <TextField
-                  fullWidth
-                  label="Occupation"
-                  name="occupation"
-                  value={formData.occupation}
-                  onChange={handleChange}
-                />
-              </Grid>
-              {/* Next of Kin */}
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Next of Kin Name"
-                  name="kin_name"
-                  value={formData.kin_name}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Next of Kin Relation"
-                  name="kin_relation"
-                  value={formData.kin_relation}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Next of Kin Phone"
-                  name="kin_phone"
-                  value={formData.kin_phone}
-                  onChange={handleChange}
-                />
-              </Grid>
-              {/* Other Details */}
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="National ID"
-                  name="national_id"
-                  value={formData.national_id}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Marital Status"
-                  name="marital_status"
-                  value={formData.marital_status}
-                  onChange={handleChange}
-                >
-                  <MenuItem value="single">Single</MenuItem>
-                  <MenuItem value="married">Married</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  select
-                  fullWidth
-                  label="Payment Method"
-                  name="payment_method"
-                  value={formData.payment_method}
-                  onChange={handleChange}
-                >
-                  <MenuItem value="cash">Cash</MenuItem>
-                  <MenuItem value="insurance">Insurance</MenuItem>
-                </TextField>
-              </Grid>
-              <Grid item xs={12}>
-                <FormControlLabel
-                  control={
-                    <Checkbox
-                      checked={formData.priority}
-                      onChange={handleCheckboxChange}
-                      name="priority"
-                    />
-                  }
-                  label="Priority Patient"
-                />
-              </Grid>
-              {/* Submit Button */}
-              <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  disabled={loading}
-                  startIcon={
-                    loading ? (
-                      <CircularProgress size={24} color="inherit" />
-                    ) : null
-                  }
-                >
-                  {loading ? "Adding patient ..." : "Add Patient"}
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-        </CardContent>
+        <form onSubmit={handleSubmit}>
+          <Row gutter={16}>
+            <Col span={8}>
+              <Input
+                placeholder="First Name"
+                name="first_name"
+                value={formData.first_name}
+                onChange={handleChange}
+                required
+              />
+            </Col>
+            <Col span={8}>
+              <Input
+                placeholder="Middle Name"
+                name="middle_name"
+                value={formData.middle_name}
+                onChange={handleChange}
+              />
+            </Col>
+            <Col span={8}>
+              <Input
+                placeholder="Last Name"
+                name="last_name"
+                value={formData.last_name}
+                onChange={handleChange}
+                required
+              />
+            </Col>
+          </Row>
+          <Row gutter={16} style={{ marginTop: 16 }}>
+            <Col span={8}>
+              <DatePicker
+                placeholder="Date of Birth"
+                onChange={handleDateChange}
+                style={{ width: "100%" }}
+              />
+            </Col>
+            <Col span={8}>
+              <Input
+                placeholder="Email"
+                name="email"
+                value={formData.email}
+                onChange={handleChange}
+                required
+              />
+            </Col>
+            <Col span={8}>
+              <Input
+                placeholder="Phone"
+                name="phone"
+                value={formData.phone}
+                onChange={handleChange}
+                required
+              />
+            </Col>
+          </Row>
+          <Row gutter={16} style={{ marginTop: 16 }}>
+            <Col span={12}>
+              <Input
+                placeholder="Address"
+                name="address"
+                value={formData.address}
+                onChange={handleChange}
+                required
+              />
+            </Col>
+            <Col span={12}>
+              <Input
+                placeholder="Occupation"
+                name="occupation"
+                value={formData.occupation}
+                onChange={handleChange}
+              />
+            </Col>
+          </Row>
+          <Row gutter={16} style={{ marginTop: 16 }}>
+            <Col span={8}>
+              <Input
+                placeholder="Next of Kin Name"
+                name="kin_name"
+                value={formData.kin_name}
+                onChange={handleChange}
+              />
+            </Col>
+            <Col span={8}>
+              <Input
+                placeholder="Next of Kin Relation"
+                name="kin_relation"
+                value={formData.kin_relation}
+                onChange={handleChange}
+              />
+            </Col>
+            <Col span={8}>
+              <Input
+                placeholder="Next of Kin Phone"
+                name="kin_phone"
+                value={formData.kin_phone}
+                onChange={handleChange}
+              />
+            </Col>
+          </Row>
+          <Row gutter={16} style={{ marginTop: 16 }}>
+            <Col span={8}>
+              <Input
+                placeholder="National ID"
+                name="national_id"
+                value={formData.national_id}
+                onChange={handleChange}
+              />
+            </Col>
+            <Col span={8}>
+              <Select
+                value={formData.marital_status}
+                name="marital_status"
+                onChange={(value) =>
+                  setFormData({ ...formData, marital_status: value })
+                }
+                style={{ width: "100%" }}
+              >
+                <Option value="single">Single</Option>
+                <Option value="married">Married</Option>
+              </Select>
+            </Col>
+            <Col span={8}>
+              <Select
+                value={formData.payment_method}
+                name="payment_method"
+                onChange={(value) =>
+                  setFormData({ ...formData, payment_method: value })
+                }
+                style={{ width: "100%" }}
+              >
+                <Option value="cash">Cash</Option>
+                <Option value="insurance">Insurance</Option>
+              </Select>
+            </Col>
+          </Row>
+          <Row style={{ marginTop: 16 }}>
+            <Checkbox
+              checked={formData.priority}
+              onChange={handleCheckboxChange}
+              name="priority"
+            >
+              Priority Patient
+            </Checkbox>
+          </Row>
+          <Row style={{ marginTop: 16 }}>
+            <Button type="primary" htmlType="submit" block disabled={loading}>
+              {loading ? <Spin /> && "Adding patient ...." : "Add Patient"}
+            </Button>
+          </Row>
+        </form>
       </Card>
-
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={2000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          Patient added successfully!
-        </Alert>
-      </Snackbar>
     </div>
   );
 };

@@ -1,192 +1,121 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Breadcrumbs,
+  Breadcrumb,
   Typography,
   Button,
-  IconButton,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Paper,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Button as MuiButton,
-} from "@mui/material";
+  Popconfirm,
+  Input,
+  Space,
+  message,
+} from "antd";
 import {
-  Visibility,
-  Edit,
-  Delete,
-  PersonAdd,
-  CloudUpload,
-  PersonOff,
-} from "@mui/icons-material";
-
-import Message from "../../components/Message";
-import Loader from "../../components/Loader";
+  EyeOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  UserAddOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { listUsers, deleteUser } from "../../store/user/userSlice";
+
+const { Search } = Input;
 
 const UserList = () => {
   const dispatch = useDispatch();
-
   const { loading, error, users } = useSelector((state) => state.getUsers);
 
   useEffect(() => {
     dispatch(listUsers());
   }, [dispatch]);
 
-  const [openDialog, setOpenDialog] = useState(false);
-  const [deleteUserId, setDeleteUserId] = useState(null);
-
   const handleDelete = (id) => {
-    dispatch(deleteUser(id));
-    setOpenDialog(false);
+    dispatch(deleteUser(id))
+      .unwrap()
+      .then(() => message.success("User deleted successfully"))
+      .catch(() => {
+        message.error("Failed to delete user.");
+      });
   };
 
-  const handleClickOpen = (id) => {
-    setDeleteUserId(id);
-    setOpenDialog(true);
-  };
-
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
-  };
+  const columns = [
+    {
+      title: "User ID",
+      dataIndex: "id",
+      key: "id",
+    },
+    {
+      title: "Full Name",
+      dataIndex: "fullName",
+      key: "fullName",
+      render: (_, record) => `${record.first_name} ${record.last_name}`,
+    },
+    {
+      title: "Email",
+      dataIndex: "email",
+      key: "email",
+    },
+    {
+      title: "Role",
+      dataIndex: "role",
+      key: "role",
+      render: (role) => role || "N/A",
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space>
+          <Link to={`/users/${record.id}`}>
+            <EyeOutlined style={{ color: "blue" }} />
+          </Link>
+          <Link to={`/users/${record.id}/edit`}>
+            <EditOutlined style={{ color: "green" }} />
+          </Link>
+          <Popconfirm
+            title="Delete this visit?"
+            onConfirm={() => handleDelete(record.id)}
+          >
+            <DeleteOutlined style={{ color: "red", cursor: "pointer" }} />
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
 
   return (
     <div>
-      {/* Breadcrumb Navigation */}
-      <Breadcrumbs aria-label="breadcrumb" sx={{ marginBottom: 2 }}>
-        <Link
-          to="/dashboard"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          Home
-        </Link>
-        <Typography color="textPrimary">Users</Typography>
-      </Breadcrumbs>
+      <Breadcrumb style={{ marginBottom: 16 }}>
+        <Breadcrumb.Item>
+          <Link to="/dashboard">Home</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>Users</Breadcrumb.Item>
+      </Breadcrumb>
 
-      {/* Title */}
-      <Typography variant="h4" align="center" gutterBottom>
+      <Typography.Title level={3} style={{ textAlign: "center" }}>
         Users
-      </Typography>
+      </Typography.Title>
 
-      {/* Action Buttons */}
-      <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-        <Button
-          variant="contained"
-          startIcon={<PersonAdd />}
-          component={Link}
-          to="/users/add"
-        >
-          Add User
+      <Space style={{ marginBottom: 16 }}>
+        <Button type="primary" icon={<UserAddOutlined />}>
+          <Link to="/users/add">Add User</Link>
         </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          startIcon={<CloudUpload />}
-          component={Link}
-          to="/users/upload"
-        >
-          Bulk Upload
+        <Button icon={<UploadOutlined />}>
+          <Link to="/users/upload">Bulk Upload</Link>
         </Button>
-      </div>
+      </Space>
 
-      {/* Search Bar */}
-      <TextField
-        fullWidth
-        variant="outlined"
-        label="Search Users..."
-        style={{ marginBottom: "20px" }}
+      <Search placeholder="Search Users..." style={{ marginBottom: 20 }} />
+
+      {error && <Typography.Text type="danger">{error}</Typography.Text>}
+
+      <Table
+        loading={loading}
+        columns={columns}
+        dataSource={users}
+        rowKey="id"
       />
-
-      {/* Error Message */}
-      {error && <Message severity="error">{error}</Message>}
-
-      {/* Loading Indicator */}
-      {loading ? (
-        <Loader />
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>User ID</TableCell>
-                <TableCell>Full Name</TableCell>
-                <TableCell>Email</TableCell>
-                <TableCell>Role</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {users.length > 0 ? (
-                users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.id}</TableCell>
-                    <TableCell>{`${user?.first_name} ${user?.last_name}`}</TableCell>
-                    <TableCell>{user?.email}</TableCell>
-                    <TableCell>{user?.role || "N/A"}</TableCell>
-                    <TableCell>
-                      <IconButton
-                        component={Link}
-                        to={`/users/${user.id}`}
-                        color="primary"
-                      >
-                        <Visibility />
-                      </IconButton>
-                      <IconButton
-                        component={Link}
-                        to={`/users/${user.id}/edit`}
-                        color="success"
-                      >
-                        <Edit />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={() => handleClickOpen(user.id)}
-                      >
-                        <Delete />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    <PersonOff sx={{ fontSize: 50, color: "gray" }} />
-                    <Typography variant="body1" color="textSecondary">
-                      No users found
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
-
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Delete this user?</DialogTitle>
-        <DialogContent>
-          Are you sure you want to delete this user? This action cannot be
-          undone.
-        </DialogContent>
-        <DialogActions>
-          <MuiButton onClick={handleCloseDialog} color="primary">
-            Cancel
-          </MuiButton>
-          <MuiButton onClick={() => handleDelete(deleteUserId)} color="error">
-            Confirm
-          </MuiButton>
-        </DialogActions>
-      </Dialog>
     </div>
   );
 };

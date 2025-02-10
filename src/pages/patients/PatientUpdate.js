@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
@@ -6,19 +6,19 @@ import {
   updatePatient,
 } from "../../store/patient/patientSlice";
 import {
-  Breadcrumbs,
-  TextField,
+  Breadcrumb,
+  Form,
+  Input,
   Button,
-  Container,
+  Card,
   Typography,
-  Paper,
-  Grid,
-  MenuItem,
-  Snackbar,
-  Alert,
-} from "@mui/material";
-import Message from "../../components/Message";
-import Loader from "../../components/Loader";
+  Select,
+  message,
+  Spin,
+} from "antd";
+
+const { Title } = Typography;
+const { Option } = Select;
 
 const PatientUpdate = () => {
   const { id } = useParams();
@@ -26,27 +26,7 @@ const PatientUpdate = () => {
   const dispatch = useDispatch();
   const { loading, error, patient } = useSelector((state) => state.getPatients);
 
-  const [formData, setFormData] = useState({
-    first_name: "",
-    middle_name: "",
-    last_name: "",
-    date_of_birth: "",
-    email: "",
-    phone: "",
-    address: "",
-    occupation: "",
-    kin_name: "",
-    kin_relation: "",
-    kin_phone: "",
-    marital_status: "single",
-    payment_method: "cash",
-    insurance_provider: "",
-    insurance_policy_number: "",
-  });
-
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
+  const [form] = Form.useForm();
 
   useEffect(() => {
     dispatch(patientDetails(id));
@@ -54,186 +34,108 @@ const PatientUpdate = () => {
 
   useEffect(() => {
     if (patient) {
-      setFormData({ ...patient });
+      form.setFieldsValue({ ...patient });
     }
-  }, [patient]);
+  }, [patient, form]);
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    dispatch(updatePatient({ id, formData }))
+  const onFinish = (values) => {
+    dispatch(updatePatient({ id, formData: values }))
       .then(() => {
-        setSnackbarMessage("Patient updated successfully!");
-        setSnackbarSeverity("success");
-        setSnackbarOpen(true);
-        setTimeout(() => navigate(`/patients/${id}`), 2000);
+        message.success("Patient updated successfully!");
+        navigate(`/patients/${id}`);
       })
       .catch(() => {
-        setSnackbarMessage("Failed to update patient. Please try again.");
-        setSnackbarSeverity("error");
-        setSnackbarOpen(true);
+        message.error("Failed to update patient. Please try again.");
       });
   };
 
   return (
     <>
-      {/* Snackbar Notification */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-
       {/* Breadcrumb Navigation */}
-      <Breadcrumbs aria-label="breadcrumb" sx={{ marginBottom: 2 }}>
-        <Link
-          to="/dashboard"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          Home
-        </Link>
-        <Link
-          to="/management/patients"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          Patients
-        </Link>
-        <Typography color="primary" fontWeight={600}>
-          Patient Update
-        </Typography>
-      </Breadcrumbs>
+      <Breadcrumb style={{ marginBottom: 16 }}>
+        <Breadcrumb.Item>
+          <Link to="/dashboard">Home</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <Link to="/management/patients">Patients</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>Patient Update</Breadcrumb.Item>
+      </Breadcrumb>
 
-      <Container maxWidth="md">
-        <Paper elevation={3} sx={{ p: 3, mt: 3 }}>
-          <div style={{ marginBottom: "16px" }}>
-            <Typography align="center" variant="h4" gutterBottom>
-              Update Patient Details
-            </Typography>
-          </div>
+      <Card title={<Title level={4}>Update Patient Details</Title>}>
+        {loading ? (
+          <Spin size="large" />
+        ) : error ? (
+          <Typography.Text type="danger">{error}</Typography.Text>
+        ) : (
+          <Form form={form} layout="vertical" onFinish={onFinish}>
+            <Form.Item
+              label="First Name"
+              name="first_name"
+              rules={[{ required: true, message: "First Name is required" }]}
+            >
+              <Input />
+            </Form.Item>
 
-          {loading && <Loader />}
-          {error && <Message severity="error">{error}</Message>}
+            <Form.Item label="Middle Name" name="middle_name">
+              <Input />
+            </Form.Item>
 
-          <div
-            style={{
-              display: "flex",
-              gap: "16px",
-              marginBottom: "16px",
-              marginTop: "16px",
-            }}
-          >
-            <form onSubmit={handleSubmit}>
-              <Grid container spacing={2}>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    fullWidth
-                    label="First Name"
-                    name="first_name"
-                    value={formData.first_name}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    fullWidth
-                    label="Middle Name"
-                    name="middle_name"
-                    value={formData.middle_name}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={4}>
-                  <TextField
-                    fullWidth
-                    label="Last Name"
-                    name="last_name"
-                    value={formData.last_name}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    type="date"
-                    label="Date of Birth"
-                    name="date_of_birth"
-                    value={formData.date_of_birth}
-                    onChange={handleChange}
-                    required
-                    InputLabelProps={{ shrink: true }}
-                  />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Phone"
-                    name="phone"
-                    value={formData.phone}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Address"
-                    name="address"
-                    value={formData.address}
-                    onChange={handleChange}
-                    required
-                    multiline
-                    rows={2}
-                  />
-                </Grid>
-                <Grid item xs={12}>
-                  <TextField
-                    select
-                    fullWidth
-                    label="Marital Status"
-                    name="marital_status"
-                    value={formData.marital_status}
-                    onChange={handleChange}
-                  >
-                    <MenuItem value="single">Single</MenuItem>
-                    <MenuItem value="married">Married</MenuItem>
-                  </TextField>
-                </Grid>
-              </Grid>
+            <Form.Item
+              label="Last Name"
+              name="last_name"
+              rules={[{ required: true, message: "Last Name is required" }]}
+            >
+              <Input />
+            </Form.Item>
 
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                sx={{ mt: 3 }}
-              >
-                Update Patient
+            <Form.Item
+              label="Date of Birth"
+              name="date_of_birth"
+              rules={[{ required: true, message: "Date of Birth is required" }]}
+            >
+              <Input type="date" />
+            </Form.Item>
+
+            <Form.Item
+              label="Phone"
+              name="phone"
+              rules={[{ required: true, message: "Phone is required" }]}
+            >
+              <Input />
+            </Form.Item>
+
+            <Form.Item
+              label="Email"
+              name="email"
+              rules={[{ required: true, message: "Email is required" }]}
+            >
+              <Input type="email" />
+            </Form.Item>
+
+            <Form.Item
+              label="Address"
+              name="address"
+              rules={[{ required: true, message: "Address is required" }]}
+            >
+              <Input.TextArea rows={2} />
+            </Form.Item>
+
+            <Form.Item label="Marital Status" name="marital_status">
+              <Select>
+                <Option value="single">Single</Option>
+                <Option value="married">Married</Option>
+              </Select>
+            </Form.Item>
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit" block loading={loading}>
+                {loading ? "Updating ...." : "Update Patient"}
               </Button>
-            </form>
-          </div>
-        </Paper>
-      </Container>
+            </Form.Item>
+          </Form>
+        )}
+      </Card>
     </>
   );
 };

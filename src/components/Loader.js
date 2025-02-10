@@ -1,18 +1,18 @@
 import React from "react";
-import { CircularProgress, Box } from "@mui/material";
+import { Spin } from "antd";
 
 function Loader() {
   return (
-    <Box
-      sx={{
+    <div
+      style={{
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
         minHeight: "100vh",
       }}
     >
-      <CircularProgress size={50} />
-    </Box>
+      <Spin size="large" />
+    </div>
   );
 }
 

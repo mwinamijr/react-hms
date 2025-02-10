@@ -141,6 +141,7 @@ const NotificationSection = () => {
         {({ TransitionProps }) => (
           <Transitions
             position={matchesXs ? "top" : "top-right"}
+            type="grow"
             in={open}
             {...TransitionProps}
           >

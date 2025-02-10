@@ -158,7 +158,7 @@ const ProfileSection = () => {
         }}
       >
         {({ TransitionProps }) => (
-          <Transitions in={open} {...TransitionProps}>
+          <Transitions type="grow" in={open} {...TransitionProps}>
             <Paper>
               <ClickAwayListener onClickAway={handleClose}>
                 <MainCard

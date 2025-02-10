@@ -5,17 +5,24 @@ import Loader from "../../components/Loader";
 import Message from "../../components/Message";
 import { patientDetails } from "../../store/patient/patientSlice";
 import {
-  Breadcrumbs,
   Card,
-  CardContent,
+  Descriptions,
   Avatar,
+  Tag,
   Typography,
-  Grid,
   Button,
-  Paper,
-  Chip,
-} from "@mui/material";
-import { Email, Phone, Home, Person } from "@mui/icons-material";
+  Col,
+  Row,
+  Space,
+} from "antd";
+import {
+  UserOutlined,
+  MailOutlined,
+  PhoneOutlined,
+  HomeOutlined,
+} from "@ant-design/icons";
+
+const { Title, Text } = Typography;
 
 const PatientDetails = () => {
   const dispatch = useDispatch();
@@ -28,139 +35,105 @@ const PatientDetails = () => {
 
   return (
     <div>
-      <Breadcrumbs aria-label="breadcrumb" sx={{ mb: 3 }}>
-        <Link
-          to="/dashboard"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          Home
-        </Link>
-        <Link
-          to="/management/patients"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          Patients
-        </Link>
-        <Typography color="primary" fontWeight={600}>
-          Patient Details
-        </Typography>
-      </Breadcrumbs>
+      <Link to="/management/patients" className="ant-btn ant-btn-link mb-4">
+        Go Back
+      </Link>
 
-      <Card elevation={3} sx={{ p: 2 }}>
-        <div style={{ marginBottom: "16px" }}>
-          <Typography align="center" variant="h4" gutterBottom>
-            Update Patient Details
-          </Typography>
-        </div>
-        <CardContent>
-          {loading ? (
-            <Loader />
-          ) : error ? (
-            <Message severity="error">{error}</Message>
-          ) : patient ? (
-            <Grid container spacing={3}>
-              <Grid item xs={12} md={4} textAlign="center">
-                <Avatar sx={{ width: 120, height: 120, margin: "auto" }}>
-                  <Person fontSize="large" />
-                </Avatar>
-                <Typography variant="h5" fontWeight={600} sx={{ mt: 2 }}>
-                  {patient.first_name} {patient.middle_name} {patient.last_name}
-                </Typography>
-                <Chip
-                  label={patient.is_active ? "Active" : "Inactive"}
-                  color={patient.is_active ? "success" : "error"}
-                  sx={{ mt: 1, fontSize: 14 }}
-                />
-              </Grid>
+      <Card title="Patient Profile">
+        {loading ? (
+          <Loader />
+        ) : error ? (
+          <Message variant="danger">{error}</Message>
+        ) : patient ? (
+          <div className="profile-container">
+            <div className="profile-header">
+              <Avatar
+                size={120}
+                icon={<UserOutlined />}
+                className="profile-avatar"
+              />
+              <Title level={3} className="profile-name">
+                {patient.first_name} {patient.middle_name} {patient.last_name}
+              </Title>
+              <Tag color={patient.is_active ? "green" : "red"}>
+                {patient.is_active ? "Active" : "Inactive"}
+              </Tag>
 
-              <Grid item xs={12} md={8}>
-                <Paper sx={{ p: 3, mb: 2, bgcolor: "#f5f5f5" }}>
-                  <Typography variant="h6" fontWeight={700} gutterBottom>
-                    Basic Information
-                  </Typography>
-                  <Typography>ID: {patient.patient_number}</Typography>
-                  <Typography>Gender: {patient.gender || "N/A"}</Typography>
-                  <Typography>DOB: {patient.date_of_birth}</Typography>
-                  <Typography>
-                    Marital Status: {patient.marital_status}
-                  </Typography>
-                  <Typography>
-                    Occupation: {patient.occupation || "N/A"}
-                  </Typography>
-                </Paper>
+              <Row justify="center" className="profile-actions">
+                <Col>
+                  <Space>
+                    <Link to={`/management/patients/${id}/edit`}>
+                      <Button type="primary">Edit Profile</Button>
+                    </Link>
+                    <Link to={`/management/patients/${id}/print`}>
+                      <Button type="default">Print Profile</Button>
+                    </Link>
+                  </Space>
+                </Col>
+              </Row>
+            </div>
 
-                <Paper sx={{ p: 3, mb: 2, bgcolor: "#f5f5f5" }}>
-                  <Typography variant="h6" fontWeight={700} gutterBottom>
-                    Contact Information
-                  </Typography>
-                  <Typography>
-                    <Email /> {patient.email}
-                  </Typography>
-                  <Typography>
-                    <Phone /> {patient.phone}
-                  </Typography>
-                  <Typography>
-                    <Home /> {patient.address}
-                  </Typography>
-                </Paper>
+            <Descriptions title="Basic Information" bordered column={2}>
+              <Descriptions.Item label="Patient ID">
+                {patient.patient_number}
+              </Descriptions.Item>
+              <Descriptions.Item label="Gender">
+                {patient.gender || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Date of Birth">
+                {patient.date_of_birth}
+              </Descriptions.Item>
+              <Descriptions.Item label="Marital Status">
+                {patient.marital_status}
+              </Descriptions.Item>
+              <Descriptions.Item label="Occupation">
+                {patient.occupation || "N/A"}
+              </Descriptions.Item>
+            </Descriptions>
 
-                <Paper sx={{ p: 3, mb: 2, bgcolor: "#f5f5f5" }}>
-                  <Typography variant="h6" fontWeight={700} gutterBottom>
-                    Next of Kin
-                  </Typography>
-                  <Typography>Name: {patient.kin_name || "N/A"}</Typography>
-                  <Typography>
-                    Relation: {patient.kin_relation || "N/A"}
-                  </Typography>
-                  <Typography>Phone: {patient.kin_phone || "N/A"}</Typography>
-                </Paper>
+            <Descriptions title="Contact Information" bordered column={2}>
+              <Descriptions.Item label="Email">
+                <MailOutlined /> {patient.email || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Phone">
+                <PhoneOutlined /> {patient.phone || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Address">
+                <HomeOutlined /> {patient.address || "N/A"}
+              </Descriptions.Item>
+            </Descriptions>
 
-                <Paper sx={{ p: 3, bgcolor: "#f5f5f5" }}>
-                  <Typography variant="h6" fontWeight={700} gutterBottom>
-                    Insurance & Payment
-                  </Typography>
-                  <Typography>
-                    Payment Method: {patient.payment_method}
-                  </Typography>
-                  {patient.payment_method === "insurance" && (
-                    <>
-                      <Typography>
-                        Provider: {patient.insurance_provider}
-                      </Typography>
-                      <Typography>
-                        Policy #: {patient.insurance_policy_number}
-                      </Typography>
-                    </>
-                  )}
-                </Paper>
+            <Descriptions title="Next of Kin" bordered column={2}>
+              <Descriptions.Item label="Name">
+                {patient.kin_name || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Relation">
+                {patient.kin_relation || "N/A"}
+              </Descriptions.Item>
+              <Descriptions.Item label="Phone">
+                {patient.kin_phone || "N/A"}
+              </Descriptions.Item>
+            </Descriptions>
 
-                <Grid container spacing={2} sx={{ mt: 3 }}>
-                  <Grid item>
-                    <Button
-                      variant="contained"
-                      component={Link}
-                      to={`/patients/${id}/edit`}
-                      color="primary"
-                    >
-                      Edit Profile
-                    </Button>
-                  </Grid>
-                  <Grid item>
-                    <Button
-                      variant="outlined"
-                      component={Link}
-                      to={`/patients/${id}/print`}
-                    >
-                      Print Profile
-                    </Button>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-          ) : (
-            <Message severity="error">No patient found</Message>
-          )}
-        </CardContent>
+            <Descriptions title="Insurance & Payment" bordered column={2}>
+              <Descriptions.Item label="Payment Method">
+                {patient.payment_method}
+              </Descriptions.Item>
+              {patient.payment_method === "insurance" && (
+                <>
+                  <Descriptions.Item label="Provider">
+                    {patient.insurance_provider}
+                  </Descriptions.Item>
+                  <Descriptions.Item label="Policy #">
+                    {patient.insurance_policy_number}
+                  </Descriptions.Item>
+                </>
+              )}
+            </Descriptions>
+          </div>
+        ) : (
+          <Message variant="info">No patient found</Message>
+        )}
       </Card>
     </div>
   );
