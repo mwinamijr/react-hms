@@ -105,6 +105,19 @@ const PatientList = () => {
         <Button type="primary" icon={<UserAddOutlined />}>
           <Link to="/management/patients/add">Add Patient</Link>
         </Button>
+        <Button type="default" block>
+          <span
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+            }}
+          >
+            <UserAddOutlined />
+            <Link to="/management/patients/visits/add">Add visit</Link>
+          </span>
+        </Button>
         <Button type="default" icon={<UploadOutlined />}>
           <Link to="/management/patients/upload">Bulk Upload</Link>
         </Button>

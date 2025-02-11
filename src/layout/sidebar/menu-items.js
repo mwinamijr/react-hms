@@ -91,7 +91,7 @@ const management = {
           id: "visit",
           title: "Assign Visit",
           type: "item",
-          url: "/management/patients/visit",
+          url: "/management/patients/visits",
           icon: icons.RegisterIcon,
         },
         {

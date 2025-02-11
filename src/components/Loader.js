@@ -3,15 +3,8 @@ import { Spin } from "antd";
 
 function Loader() {
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-      }}
-    >
-      <Spin size="large" />
+    <div style={{ textAlign: "center" }}>
+      <Spin size="large" style={{ margin: "20px auto", display: "block" }} />
     </div>
   );
 }
