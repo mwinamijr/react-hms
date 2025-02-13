@@ -51,7 +51,8 @@ const AddHospitalItem = () => {
   const submitHandler = (values) => {
     const newItem = {
       ...values,
-      insurance_company_ids: values.insurance_company_ids || [], // Send as IDs
+      item_type_id: values.item_type_id, // ✅ Use item_type_id when sending data
+      insurance_company_ids: values.insurance_company_ids || [], // ✅ Use insurance_company_ids
     };
 
     dispatch(createHospitalItem(newItem));
@@ -85,7 +86,12 @@ const AddHospitalItem = () => {
             <Input placeholder="Enter description" />
           </Form.Item>
 
-          <Form.Item label="Item Type" name="item_type">
+          {/* ✅ Use item_type_id for selection */}
+          <Form.Item
+            label="Item Type"
+            name="item_type_id"
+            rules={[{ required: true, message: "Select an item type" }]}
+          >
             <Select placeholder="Select an item type">
               {itemTypes.map((item) => (
                 <Option key={item.id} value={item.id}>
@@ -103,18 +109,7 @@ const AddHospitalItem = () => {
             <InputNumber min={0} className="w-full" placeholder="Enter price" />
           </Form.Item>
 
-          {/* Display Insurance Companies */}
-          <Form.Item label="Insurance Companies (Read-Only)">
-            <Select mode="multiple" placeholder="Insurance companies" disabled>
-              {insuranceCompanies.map((company) => (
-                <Option key={company.id} value={company.id}>
-                  {company.name}
-                </Option>
-              ))}
-            </Select>
-          </Form.Item>
-
-          {/* Send Insurance Company IDs when creating */}
+          {/* ✅ Send Insurance Company IDs when creating */}
           <Form.Item
             label="Select Insurance Companies"
             name="insurance_company_ids"

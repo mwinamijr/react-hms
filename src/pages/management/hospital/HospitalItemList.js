@@ -44,8 +44,9 @@ const HospitalItemList = () => {
     },
     {
       title: "Category",
-      dataIndex: "category",
-      key: "category",
+      dataIndex: "item_type",
+      key: "item_type",
+      render: (item_type) => `${item_type.name}`,
     },
     {
       title: "Price",

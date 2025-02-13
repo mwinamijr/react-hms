@@ -19,7 +19,7 @@ import {
   hospitalItemDetails,
   updateHospitalItem,
 } from "../../../store/management/hospitalItemSlice";
-import { listInsuranceCompanies } from "../../../store/management/insuranceCompanySlice"; // Fetch insurance companies
+import { listInsuranceCompanies } from "../../../store/management/insuranceCompanySlice";
 import { listItemTypes } from "../../../store/management/itemTypeSlice";
 
 const { Title } = Typography;
@@ -41,8 +41,8 @@ const HospitalItemUpdate = () => {
   const { itemTypes } = useSelector((state) => state.getItemTypes);
 
   useEffect(() => {
-    dispatch(hospitalItemDetails(id)); // Fetch hospital item details
-    dispatch(listInsuranceCompanies()); // Fetch available insurance companies
+    dispatch(hospitalItemDetails(id));
+    dispatch(listInsuranceCompanies());
     dispatch(listItemTypes());
   }, [dispatch, id]);
 
@@ -52,9 +52,9 @@ const HospitalItemUpdate = () => {
         name: hospitalItem.name,
         description: hospitalItem.description,
         price: hospitalItem.price,
-        item_type: hospitalItem?.item_type,
+        item_type_id: hospitalItem.item_type?.id,
         insurance_company_ids:
-          hospitalItem.insurance_company?.map((company) => company.id) || [], // Pre-fill selected companies
+          hospitalItem.insurance_company?.map((company) => company.id) || [],
       });
     }
   }, [hospitalItem, form]);
@@ -62,7 +62,8 @@ const HospitalItemUpdate = () => {
   const onFinish = (values) => {
     const updatedData = {
       ...values,
-      insurance_company_ids: values.insurance_company_ids || [], // Ensure array format
+      item_type_id: values.item_type_id,
+      insurance_company_ids: values.insurance_company_ids || [],
     };
 
     dispatch(updateHospitalItem({ id, values: updatedData }))
@@ -122,7 +123,7 @@ const HospitalItemUpdate = () => {
             <Col xs={24}>
               <Form.Item
                 label="Item Type"
-                name="item_type"
+                name="item_type_id"
                 rules={[{ required: true, message: "Select an item type" }]}
               >
                 <Select placeholder="Select an item type">
@@ -136,7 +137,6 @@ const HospitalItemUpdate = () => {
             </Col>
           </Row>
 
-          {/* Display Insurance Companies */}
           <Row gutter={[16, 16]}>
             <Col xs={24}>
               <Form.Item label="Current Insurance Companies (Read-Only)">
@@ -155,7 +155,6 @@ const HospitalItemUpdate = () => {
             </Col>
           </Row>
 
-          {/* Select Insurance Companies for Updating */}
           <Row gutter={[16, 16]}>
             <Col xs={24}>
               <Form.Item

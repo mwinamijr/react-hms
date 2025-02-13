@@ -42,6 +42,7 @@ import ItemTypeList from "../pages/management/hospital/ItemTypeList";
 import AddItemType from "../pages/management/hospital/AddItemType";
 import ItemTypeUpdate from "../pages/management/hospital/ItemTypeUpdate";
 import ItemTypeDetails from "../pages/management/hospital/ItemTypeDetails";
+import HospitalItemUpload from "../pages/management/hospital/HospitalItemUpload";
 
 // Main Routes
 const MainRoutes = {
@@ -107,6 +108,7 @@ const MainRoutes = {
             { path: ":id", element: <HospitalItemDetails /> },
             { path: ":id/edit", element: <HospitalItemUpdate /> },
             { path: "add", element: <AddHospitalItem /> },
+            { path: "upload", element: <HospitalItemUpload /> },
           ],
         },
         {
