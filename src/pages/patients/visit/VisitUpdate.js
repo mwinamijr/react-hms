@@ -103,7 +103,7 @@ const VisitUpdate = () => {
       {loading && <Loader />}
       {error && <Message variant="danger">{error}</Message>}
 
-      <Card title="Edit Visit Details" className="shadow">
+      <Card title="Update Visit Details" className="shadow">
         <Form form={form} layout="vertical" onFinish={onFinish}>
           {/* Patient Information */}
           <Title level={5}>Patient Information</Title>

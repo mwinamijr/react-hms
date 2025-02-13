@@ -195,6 +195,45 @@ const finance = {
   ],
 };
 
+const hospitalManagement = {
+  id: "hospital management",
+  type: "group",
+  children: [
+    {
+      id: "hospital management",
+      title: "Hospital Management",
+      type: "collapse",
+      icon: icons.PharmacyIcon,
+      children: [
+        {
+          id: "insurance-companies",
+          title: "Insurance Companies",
+          type: "item",
+          url: "/management/insurance-companies",
+        },
+        {
+          id: "insured-patients",
+          title: "Insured Patients",
+          type: "item",
+          url: "/management/insurance",
+        },
+        {
+          id: "hospital-items",
+          title: "Hospital Items",
+          type: "item",
+          url: "/management/hospital-items",
+        },
+        {
+          id: "item-types",
+          title: "Item Types",
+          type: "item",
+          url: "/management/item-types",
+        },
+      ],
+    },
+  ],
+};
+
 const reports = {
   id: "users",
   type: "group",
@@ -236,6 +275,7 @@ const menuItems = {
     management,
     medicalProcess,
     pharmacy,
+    hospitalManagement,
     finance,
     reports,
     signout,
