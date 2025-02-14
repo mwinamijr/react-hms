@@ -24,6 +24,7 @@ import {
 import { listPatients } from "../../../store/patient/patientSlice";
 import { listDepartments } from "../../../store/management/departmentSlice";
 import { listUsers } from "../../../store/user/userSlice";
+import { addConsultationPayment } from "../../../store/finance/paymentSlice";
 import dayjs from "dayjs";
 
 const { Option } = Select;
@@ -37,8 +38,11 @@ const AddVisit = () => {
   // Fetch data from Redux store
   const { patients } = useSelector((state) => state.getPatients);
   const { departments } = useSelector((state) => state.getDepartments);
-  const { users } = useSelector((state) => state.getUsers); // Assuming users contain role information
-  const { loading, error, successCreate } = useSelector(
+  const { users } = useSelector((state) => state.getUsers);
+  const { loading: addPaymentLoading, error: addPaymentError } = useSelector(
+    (state) => state.getPayments
+  );
+  const { loading, error, successCreate, createdVisit } = useSelector(
     (state) => state.getVisits
   );
 
@@ -49,17 +53,29 @@ const AddVisit = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (successCreate) {
+    if (successCreate && createdVisit) {
       dispatch(resetCreateState());
+
+      // Add consultation payment for the created visit
+      dispatch(
+        addConsultationPayment({
+          visit_id: createdVisit.id,
+        })
+      );
+
       message.success("Visit added successfully!");
-      navigate("/management/patients/visit");
+      message.success("Consultation payment added successfully!");
+      navigate("/management/patients/visits");
     }
-  }, [dispatch, successCreate, navigate]);
+  }, [dispatch, successCreate, createdVisit, navigate]);
 
   const submitHandler = (values) => {
     const formattedData = {
       ...values,
-      visit_date: dayjs(values.visit_date).format("YYYY-MM-DD"),
+      assigned_doctor: values.assigned_doctor || null, // Ensure it can be null
+      visit_date: values.visit_date
+        ? dayjs(values.visit_date).format("YYYY-MM-DD")
+        : null,
       is_active: values.is_active || false,
     };
 
@@ -80,7 +96,7 @@ const AddVisit = () => {
       </Breadcrumb>
 
       {loading && <Loader />}
-
+      {addPaymentLoading && <Loader />}
       <Card title="Register Visit" className="shadow">
         <Form form={form} layout="vertical" onFinish={submitHandler}>
           {/* Select Patient */}
@@ -123,9 +139,9 @@ const AddVisit = () => {
             </Col>
             <Col xs={24} md={12}>
               <Form.Item label="Assigned Doctor" name="assigned_doctor">
-                <Select placeholder="Select a doctor">
+                <Select placeholder="Select a doctor" allowClear>
                   {users
-                    .filter((user) => user.role === "doctor") // Filter doctors only
+                    .filter((user) => user.role === "doctor")
                     .map((doctor) => (
                       <Option key={doctor.id} value={doctor.id}>
                         {doctor.first_name} {doctor.last_name}
@@ -160,10 +176,9 @@ const AddVisit = () => {
             <Col xs={24} md={12}>
               <Form.Item label="Visit Date" name="visit_date">
                 <DatePicker
-                  showTime
                   className="w-full"
-                  defaultValue={dayjs()}
                   format="YYYY-MM-DD"
+                  defaultValue={dayjs()}
                 />
               </Form.Item>
             </Col>
@@ -187,6 +202,7 @@ const AddVisit = () => {
         </Form>
       </Card>
       {error && <Message variant="danger">{error}</Message>}
+      {addPaymentError && <Message variant="danger">{addPaymentError}</Message>}
     </div>
   );
 };

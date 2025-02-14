@@ -8,6 +8,8 @@ import insuranceCompanyReducer from "./management/insuranceCompanySlice";
 import insuredPatientReducer from "./management/insuredPatientSlice";
 import hospitaItemReducer from "./management/hospitalItemSlice";
 import itemTypeReducer from "./management/itemTypeSlice";
+import paymentReducer from "./finance/paymentSlice";
+import invoiceReducer from "./finance/invoiceSlice";
 
 const store = configureStore({
   reducer: {
@@ -20,6 +22,8 @@ const store = configureStore({
     getInsuredPatients: insuredPatientReducer,
     getHospitalItems: hospitaItemReducer,
     getItemTypes: itemTypeReducer,
+    getPayments: paymentReducer,
+    getInvoices: invoiceReducer,
   },
   devTools: process.env.NODE_ENV !== "production", // Enable Redux DevTools in development
 });
