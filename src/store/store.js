@@ -10,6 +10,7 @@ import hospitaItemReducer from "./management/hospitalItemSlice";
 import itemTypeReducer from "./management/itemTypeSlice";
 import paymentReducer from "./finance/paymentSlice";
 import invoiceReducer from "./finance/invoiceSlice";
+import visitCommentReducer from "./management/visitCommentSlice";
 
 const store = configureStore({
   reducer: {
@@ -24,6 +25,7 @@ const store = configureStore({
     getItemTypes: itemTypeReducer,
     getPayments: paymentReducer,
     getInvoices: invoiceReducer,
+    getVisitComments: visitCommentReducer,
   },
   devTools: process.env.NODE_ENV !== "production", // Enable Redux DevTools in development
 });

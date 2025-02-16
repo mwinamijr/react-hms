@@ -164,6 +164,31 @@ export const updateVisit = createAsyncThunk(
   }
 );
 
+export const assignDoctor = createAsyncThunk(
+  "visit/assignDoctor",
+  async ({ id, ...values }, { getState, rejectWithValue }) => {
+    try {
+      const {
+        getUsers: { userInfo },
+      } = getState();
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          Authorization: `Bearer ${userInfo.access}`,
+        },
+      };
+      const { data } = await axios.post(
+        `${djangoUrl}/api/core/visits/${id}/assign-doctor/`,
+        values,
+        config
+      );
+      return data;
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  }
+);
+
 // Visit slice
 const visitSlice = createSlice({
   name: "visit",
@@ -239,6 +264,16 @@ const visitSlice = createSlice({
         );
       })
       .addCase(deleteVisit.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(assignDoctor.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(assignDoctor.fulfilled, (state, action) => {
+        state.loading = false;
+      })
+      .addCase(assignDoctor.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

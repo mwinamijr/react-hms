@@ -7,7 +7,6 @@ import AuthLogin from "../pages/authentcation/Login";
 import Dashboard from "../pages/Dashboard";
 import AddPatients from "../pages/patients/AddPatients";
 import Merge from "../pages/patients/Merge";
-import Movement from "../pages/patients/Movement";
 import Patients from "../pages/patients/Patients";
 import UploadPatients from "../pages/patients/UploadPatients";
 import PatientDetails from "../pages/patients/PatientDetails";
@@ -43,6 +42,8 @@ import AddItemType from "../pages/management/hospital/AddItemType";
 import ItemTypeUpdate from "../pages/management/hospital/ItemTypeUpdate";
 import ItemTypeDetails from "../pages/management/hospital/ItemTypeDetails";
 import HospitalItemUpload from "../pages/management/hospital/HospitalItemUpload";
+import Movement from "../pages/patients/movement/Movement";
+import MovementDetails from "../pages/patients/movement/MovementDetails";
 
 // Main Routes
 const MainRoutes = {
@@ -67,6 +68,7 @@ const MainRoutes = {
             { path: "upload", element: <UploadPatients /> },
             { path: "merge", element: <Merge /> },
             { path: "movement", element: <Movement /> },
+            { path: "movement/:id", element: <MovementDetails /> },
             { path: "visits", element: <VisitList /> },
             { path: "visits/:id", element: <VisitDetails /> },
             { path: "visits/:id/edit", element: <VisitUpdate /> },

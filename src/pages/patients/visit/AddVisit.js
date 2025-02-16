@@ -38,7 +38,7 @@ const AddVisit = () => {
   // Fetch data from Redux store
   const { patients } = useSelector((state) => state.getPatients);
   const { departments } = useSelector((state) => state.getDepartments);
-  const { users } = useSelector((state) => state.getUsers);
+  const { users, userInfo } = useSelector((state) => state.getUsers);
   const { loading: addPaymentLoading, error: addPaymentError } = useSelector(
     (state) => state.getPayments
   );
@@ -77,6 +77,7 @@ const AddVisit = () => {
         ? dayjs(values.visit_date).format("YYYY-MM-DD")
         : null,
       is_active: values.is_active || false,
+      created_by: userInfo.user.id || null,
     };
 
     dispatch(createVisit(formattedData));
