@@ -43,9 +43,8 @@ export const fetchVisitComments = createAsyncThunk(
 
 export const addVisitComment = createAsyncThunk(
   "visitComments/addVisitComment",
-  async (data, { getState, rejectWithValue }) => {
+  async ({ id, values }, { getState, rejectWithValue }) => {
     try {
-      const { visitId, description } = data;
       const {
         getUsers: { userInfo },
       } = getState();
@@ -54,12 +53,11 @@ export const addVisitComment = createAsyncThunk(
           Authorization: `Bearer ${userInfo.access}`,
         },
       };
+      console.log("comment:", ...values);
       const response = await axios.post(
-        `${djangoUrl}/api/management/visits/${visitId}/comments/`,
+        `${djangoUrl}/api/management/visits/${id}/comments/`,
         config,
-        {
-          description,
-        }
+        values
       );
       return response.data;
     } catch (error) {

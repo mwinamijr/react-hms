@@ -27,12 +27,7 @@ import {
   Space,
   Table,
 } from "antd";
-import {
-  UserOutlined,
-  MailOutlined,
-  PhoneOutlined,
-  CalendarOutlined,
-} from "@ant-design/icons";
+import { UserOutlined, CalendarOutlined } from "@ant-design/icons";
 
 const { Title, Text } = Typography;
 

@@ -52,12 +52,14 @@ const PatientMovement = () => {
       title: "Full Name",
       key: "fullName",
       render: (text, record) =>
-        `${record.patient_details.first_name} ${record.patient_details.last_name}`,
+        `${record.patient_details?.first_name} ${record?.patient_details?.last_name}`,
     },
     {
       title: "Assigned to",
-      dataIndex: "doctor_name",
-      key: "doctor_name",
+
+      key: "doctorName",
+      render: (text, record) =>
+        `${record.doctor_details?.first_name} ${record?.doctor_details?.last_name}`,
     },
     {
       title: "Insurer",
