@@ -177,7 +177,6 @@ export const assignDoctor = createAsyncThunk(
           Authorization: `Bearer ${userInfo.access}`,
         },
       };
-      console.log("assign values:", values);
       const { data } = await axios.post(
         `${djangoUrl}/api/core/visits/assign-doctor/`,
         values,

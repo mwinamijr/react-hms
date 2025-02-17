@@ -39,17 +39,15 @@ const MovementDetails = ({ patient }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const [form] = Form.useForm(); // Form instance
-  const [isDrawerVisible, setIsDrawerVisible] = useState(false); // Control drawer visibility
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Control drawer visibility
 
   // Redux State
   const { departments, loading: departmentsLoading } = useSelector(
     (state) => state.getDepartments
   );
-  const {
-    users,
-    userInfo,
-    loading: usersLoading,
-  } = useSelector((state) => state.getUsers);
+  const { users, loading: usersLoading } = useSelector(
+    (state) => state.getUsers
+  );
   const {
     loading: visitLoading,
     error,
@@ -60,7 +58,6 @@ const MovementDetails = ({ patient }) => {
     (state) => state.getVisitComments
   );
 
-  // Fetch Data on Component Mount
   useEffect(() => {
     dispatch(visitDetails(id));
     dispatch(listInsuredPatients());
@@ -68,7 +65,6 @@ const MovementDetails = ({ patient }) => {
     dispatch(listUsers());
   }, [dispatch, id]);
 
-  // Pre-fill the form if visit details are available
   useEffect(() => {
     if (visit) {
       form.setFieldsValue({
@@ -82,7 +78,7 @@ const MovementDetails = ({ patient }) => {
       });
     }
   }, [form, visit]);
-  // Handle form submission
+
   const handleSubmit = (values) => {
     const { department, assigned_doctor, comment } = values;
 
@@ -91,34 +87,51 @@ const MovementDetails = ({ patient }) => {
       return;
     }
 
-    dispatch(
-      assignDoctor({
-        id,
-        visit_id: visit.id,
-        doctor_id: assigned_doctor,
-        department_id: department,
-      })
-    );
+    const departmentChanged = department !== visit?.department_details?.id;
+    const doctorChanged = assigned_doctor !== visit?.doctor_details?.id;
 
-    dispatch(
-      addVisitComment({
-        id,
-        description: comment,
-        created_by: userInfo?.user?.id,
-        visit: visit.id,
-      })
-    )
-      .then(() => {
-        message.success("Visit forwarded successfully!");
-        setIsDrawerVisible(false);
-        form.resetFields();
-      })
-      .catch((error) => {
-        message.error(`Error: ${error}`);
-      });
+    if (departmentChanged || doctorChanged) {
+      dispatch(
+        assignDoctor({
+          id,
+          visit_id: visit.id,
+          doctor_id: assigned_doctor,
+          department_id: department,
+        })
+      )
+        .then(() => {
+          message.success("Assigned doctor and department successfully!");
+        })
+        .catch((error) => {
+          message.error(`Error: ${error}`);
+        });
+    }
+
+    if (comment && comment.trim() !== "") {
+      dispatch(
+        addVisitComment({
+          id,
+          description: comment,
+        })
+      )
+        .then(() => {
+          message.success("Visit forwarded successfully!");
+        })
+        .catch((error) => {
+          message.error(`Error: ${error}`);
+        });
+    }
+
+    if (
+      departmentChanged ||
+      doctorChanged ||
+      (comment && comment.trim() !== "")
+    ) {
+      setIsDrawerOpen(false);
+      form.resetFields();
+    }
   };
 
-  // Calculate Patient Age
   const getAge = (dob) => {
     if (!dob) return "N/A";
     const birthDate = new Date(dob);
@@ -134,7 +147,6 @@ const MovementDetails = ({ patient }) => {
     return age;
   };
 
-  // Get Patient's Insurer
   const getInsurer = () => {
     const insuredPatient = insuredPatients.find(
       (insured) =>
@@ -153,23 +165,26 @@ const MovementDetails = ({ patient }) => {
   };
 
   // Drawer Controls
-  const showDrawer = () => setIsDrawerVisible(true);
-  const closeDrawer = () => setIsDrawerVisible(false);
+  const showDrawer = () => setIsDrawerOpen(true);
+  const closeDrawer = () => setIsDrawerOpen(false);
   const [forResult, setForResult] = useState(true);
   const [makeConfidential, setMakeConfidential] = useState(true);
 
   return (
     <div>
       {/* Breadcrumb Navigation */}
-      <Breadcrumb style={{ marginBottom: 16 }}>
-        <Breadcrumb.Item>
-          <Link to="/dashboard">Home</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <Link to="/management/patients/movement">Patient Movements</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>Movement Details</Breadcrumb.Item>
-      </Breadcrumb>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={[
+          { title: <Link to="/dashboard">Home</Link> },
+          {
+            title: (
+              <Link to="/management/patients/movement">Patient Movements</Link>
+            ),
+          },
+          { title: "Movement Details" },
+        ]}
+      />
 
       {visitLoading && <Loader />}
       {error && <Message>{error}</Message>}
@@ -188,18 +203,37 @@ const MovementDetails = ({ patient }) => {
             {visit?.patient_details?.patient_number} <hr />
             <Text strong>Visit Number: </Text>
             {visit?.visit_number} <hr />
+            <Text strong>Assigned doctor: </Text>
+            <span
+              style={{
+                color: "red",
+                fontWeight: "bold",
+                fontStyle: "italic",
+                fontSize: "1.1rem",
+              }}
+            >
+              {visit?.doctor_details?.first_name}{" "}
+              {visit?.doctor_details?.last_name} <hr />
+            </span>
+          </Col>
+          <Col xs={24} md={8}>
             <Text strong>Gender: </Text>
             {visit?.patient_details?.gender} <hr />
             <Text strong>Age: </Text>{" "}
             {getAge(visit?.patient_details?.date_of_birth)} <hr />
-          </Col>
-          <Col xs={24} md={8}>
             <Text strong>Insurer: </Text> {getInsurer()} <hr />
             <Text strong>Created By: </Text> {visit?.createdBy} <hr />
-            <Text strong>Assigned doctor: </Text>
-            {visit?.doctor_name} <hr />
             <Text strong>Department: </Text>
-            {visit?.department_name} <hr />
+            <span
+              style={{
+                color: "red",
+                fontWeight: "bold",
+                fontStyle: "italic",
+                fontSize: "1.1rem",
+              }}
+            >
+              {visit?.department_details.name} <hr />
+            </span>
           </Col>
         </Row>
 
@@ -225,7 +259,7 @@ const MovementDetails = ({ patient }) => {
       {/* Drawer for Assigning Forward */}
       <Drawer
         title="Assign Forward"
-        visible={isDrawerVisible}
+        open={isDrawerOpen}
         onClose={closeDrawer}
         width={600}
       >

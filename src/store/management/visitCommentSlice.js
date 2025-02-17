@@ -20,7 +20,7 @@ const getErrorMessage = (error) => {
 
 export const fetchVisitComments = createAsyncThunk(
   "visitComments/fetchVisitComments",
-  async (visitId, { getState, rejectWithValue }) => {
+  async (id, { getState, rejectWithValue }) => {
     try {
       const {
         getUsers: { userInfo },
@@ -31,7 +31,7 @@ export const fetchVisitComments = createAsyncThunk(
         },
       };
       const { data } = await axios.get(
-        `${djangoUrl}/api/management/visits/${visitId}/comments/`,
+        `${djangoUrl}/api/management/visits/visit-comments/${id}/`,
         config
       );
       return data;
@@ -43,7 +43,7 @@ export const fetchVisitComments = createAsyncThunk(
 
 export const addVisitComment = createAsyncThunk(
   "visitComments/addVisitComment",
-  async ({ id, values }, { getState, rejectWithValue }) => {
+  async ({ id, ...values }, { getState, rejectWithValue }) => {
     try {
       const {
         getUsers: { userInfo },
@@ -53,11 +53,11 @@ export const addVisitComment = createAsyncThunk(
           Authorization: `Bearer ${userInfo.access}`,
         },
       };
-      console.log("comment:", ...values);
+      console.log("comment:", values);
       const response = await axios.post(
-        `${djangoUrl}/api/management/visits/${id}/comments/`,
-        config,
-        values
+        `${djangoUrl}/api/management/visits/visit-comments/${id}/`,
+        values,
+        config
       );
       return response.data;
     } catch (error) {
@@ -80,9 +80,9 @@ export const updateVisitComment = createAsyncThunk(
         },
       };
       const response = await axios.patch(
-        `${djangoUrl}/api/management/comments/${commentId}/`,
-        config,
-        { description }
+        `${djangoUrl}/api/management/visit-comments/detail/${commentId}/`,
+        { description },
+        config
       );
       return response.data;
     } catch (error) {
@@ -104,7 +104,7 @@ export const deleteVisitComment = createAsyncThunk(
         },
       };
       await axios.delete(
-        `${djangoUrl}/api/management/comments/${commentId}/`,
+        `${djangoUrl}/api/management/visit-comments/detail/${commentId}/`,
         config
       );
       return commentId;

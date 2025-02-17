@@ -91,12 +91,13 @@ const PatientMovement = () => {
   return (
     <div>
       {/* Breadcrumb Navigation */}
-      <Breadcrumb style={{ marginBottom: 16 }}>
-        <Breadcrumb.Item>
-          <Link to="/dashboard">Home</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>Patient Movement</Breadcrumb.Item>
-      </Breadcrumb>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={[
+          { title: <Link to="/dashboard">Home</Link> },
+          { title: "Patient Movement" },
+        ]}
+      />
 
       {/* Title */}
       <Title level={2} style={{ textAlign: "center", marginBottom: 24 }}>
