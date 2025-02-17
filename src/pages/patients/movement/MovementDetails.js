@@ -32,7 +32,6 @@ import { listUsers } from "../../../store/user/userSlice";
 import { addVisitComment } from "../../../store/management/visitCommentSlice";
 
 const { Title, Text } = Typography;
-const { Panel } = Collapse;
 const { TextArea } = Input;
 
 const MovementDetails = ({ patient }) => {
@@ -170,6 +169,49 @@ const MovementDetails = ({ patient }) => {
   const [forResult, setForResult] = useState(true);
   const [makeConfidential, setMakeConfidential] = useState(true);
 
+  const collapseItems = [
+    {
+      key: "1",
+      label: "🩺 Vital Signs",
+      children: (
+        <List
+          dataSource={patientDetails.vitals}
+          renderItem={(item) => <List.Item>{item}</List.Item>}
+        />
+      ),
+    },
+    {
+      key: "2",
+      label: "🏥 Medical Services",
+      children: (
+        <List
+          dataSource={patientDetails.medicalServices}
+          renderItem={(item) => <List.Item>{item}</List.Item>}
+        />
+      ),
+    },
+    {
+      key: "3",
+      label: "💊 Pharmacy List",
+      children: (
+        <List
+          dataSource={patientDetails.pharmacyList}
+          renderItem={(item) => <List.Item>{item}</List.Item>}
+        />
+      ),
+    },
+    {
+      key: "4",
+      label: "📜 Job Flows",
+      children: (
+        <List
+          dataSource={patientDetails.jobFlows}
+          renderItem={(item) => <List.Item>{item}</List.Item>}
+        />
+      ),
+    },
+  ];
+
   return (
     <div>
       {/* Breadcrumb Navigation */}
@@ -185,10 +227,8 @@ const MovementDetails = ({ patient }) => {
           { title: "Movement Details" },
         ]}
       />
-
       {visitLoading && <Loader />}
       {error && <Message>{error}</Message>}
-
       <Card bordered style={{ marginBottom: 20 }}>
         <Row gutter={24} align="middle">
           <Col xs={24} md={6} style={{ textAlign: "center" }}>
@@ -255,7 +295,6 @@ const MovementDetails = ({ patient }) => {
           </Button>
         </Row>
       </Card>
-
       {/* Drawer for Assigning Forward */}
       <Drawer
         title="Assign Forward"
@@ -331,41 +370,8 @@ const MovementDetails = ({ patient }) => {
           </Row>
         </Form>
       </Drawer>
-
       {/* Collapsible Sections */}
-      <Collapse accordion>
-        {/* Vital Signs */}
-        <Panel header="🩺 Vital Signs" key="1">
-          <List
-            dataSource={patientDetails.vitals}
-            renderItem={(item) => <List.Item>{item}</List.Item>}
-          />
-        </Panel>
-
-        {/* Medical Services */}
-        <Panel header="🏥 Medical Services" key="2">
-          <List
-            dataSource={patientDetails.medicalServices}
-            renderItem={(item) => <List.Item>{item}</List.Item>}
-          />
-        </Panel>
-
-        {/* Pharmacy List */}
-        <Panel header="💊 Pharmacy List" key="3">
-          <List
-            dataSource={patientDetails.pharmacyList}
-            renderItem={(item) => <List.Item>{item}</List.Item>}
-          />
-        </Panel>
-
-        {/* Job Flows */}
-        <Panel header="📜 Job Flows" key="4">
-          <List
-            dataSource={patientDetails.jobFlows}
-            renderItem={(item) => <List.Item>{item}</List.Item>}
-          />
-        </Panel>
-      </Collapse>
+      <Collapse accordion items={collapseItems} />;
     </div>
   );
 };
