@@ -85,6 +85,54 @@ export const listPaymentItems = createAsyncThunk(
   }
 );
 
+export const listVisitPayments = createAsyncThunk(
+  "payment/listVisitPayments",
+  async (id, { getState, rejectWithValue }) => {
+    try {
+      const {
+        getUsers: { userInfo },
+      } = getState();
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.access}`,
+        },
+      };
+      console.log("visit payments calling");
+      const { data } = await axios.get(
+        `${djangoUrl}/api/payments/visits/${id}/payments/`,
+        config
+      );
+      return data;
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  }
+);
+
+export const listVisitPaymentItems = createAsyncThunk(
+  "payment/listVisitPaymentItems",
+  async (id, { getState, rejectWithValue }) => {
+    try {
+      const {
+        getUsers: { userInfo },
+      } = getState();
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.access}`,
+        },
+      };
+      console.log("visit payment items calling");
+      const { data } = await axios.get(
+        `${djangoUrl}/api/payments/visits/${id}/payment-items/`,
+        config
+      );
+      return data;
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  }
+);
+
 // Fetch a single payment by ID
 export const paymentDetails = createAsyncThunk(
   "payment/details",
@@ -261,6 +309,17 @@ const paymentSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
+      .addCase(listVisitPayments.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(listVisitPayments.fulfilled, (state, action) => {
+        state.loading = false;
+        state.payments = action.payload;
+      })
+      .addCase(listVisitPayments.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
       .addCase(listPaymentItems.pending, (state) => {
         state.loading = true;
       })
@@ -269,6 +328,17 @@ const paymentSlice = createSlice({
         state.paymentItems = action.payload;
       })
       .addCase(listPaymentItems.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(listVisitPaymentItems.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(listVisitPaymentItems.fulfilled, (state, action) => {
+        state.loading = false;
+        state.paymentItems = action.payload;
+      })
+      .addCase(listVisitPaymentItems.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })

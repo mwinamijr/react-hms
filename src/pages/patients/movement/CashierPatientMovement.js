@@ -16,8 +16,6 @@ const CashierPatientMovement = () => {
   const [activeTab, setActiveTab] = useState("myTask"); // Default to "My Task"
   const [selectedWard, setSelectedWard] = useState(null); // Ward filter
 
-  // Get user info from Redux state
-  //const { userInfo } = useSelector((state) => state.getUsers);
   const { loading, error, visits } = useSelector((state) => state.getVisits);
   const { insuredPatients } = useSelector((state) => state.getInsuredPatients);
 
@@ -26,22 +24,7 @@ const CashierPatientMovement = () => {
     dispatch(listInsuredPatients()); // Fetch insured patients
   }, [dispatch]);
 
-  // **Filter Data Based on Active Tab**
-  const filteredVisits = visits.filter((visit) => {
-    if (activeTab === "myTask")
-      return visit.status === "started" || visit.status === "pending";
-    if (activeTab === "inpatientCenter")
-      return visit.department?.name === "Inpatient";
-    if (activeTab === "todayList")
-      return visit.visit_date === new Date().toISOString().split("T")[0];
-    return visits;
-  });
-
-  // **Filter Inpatient Patients by Ward**
-  const inpatientVisits = selectedWard
-    ? filteredVisits.filter((visit) => visit.ward?.name === selectedWard)
-    : filteredVisits;
-
+  // **Function to determine the insurer**
   const renderInsurer = (record) => {
     const insuredPatient = insuredPatients.find(
       (patient) =>
@@ -50,6 +33,27 @@ const CashierPatientMovement = () => {
     );
     return insuredPatient ? insuredPatient.provider.name : "Cash";
   };
+
+  // **Filter out only cash patients**
+  const cashOnlyVisits = visits.filter(
+    (visit) => renderInsurer(visit) === "Cash"
+  );
+
+  // **Filter Data Based on Active Tab**
+  const filteredVisits = cashOnlyVisits.filter((visit) => {
+    if (activeTab === "myTask")
+      return visit.status === "started" || visit.status === "pending";
+    if (activeTab === "inpatientCenter")
+      return visit.department_details?.name === "inpatient";
+    if (activeTab === "todayList")
+      return visit.visit_date === new Date().toISOString().split("T")[0];
+    return cashOnlyVisits;
+  });
+
+  // **Filter Inpatient Patients by Ward**
+  const inpatientVisits = selectedWard
+    ? filteredVisits.filter((visit) => visit.ward?.name === selectedWard)
+    : filteredVisits;
 
   const columns = [
     {
@@ -76,7 +80,7 @@ const CashierPatientMovement = () => {
     {
       title: "Department",
       key: "department",
-      render: (text, record) => record.department?.name || "N/A",
+      render: (text, record) => record.department_details?.name || "N/A",
     },
     {
       title: "Status",
@@ -139,7 +143,7 @@ const CashierPatientMovement = () => {
           allowClear
           style={{ width: 200, marginBottom: 16 }}
         >
-          {Array.from(new Set(visits.map((visit) => visit.ward?.name)))
+          {Array.from(new Set(cashOnlyVisits.map((visit) => visit.ward?.name)))
             .filter(Boolean)
             .map((ward) => (
               <Option key={ward} value={ward}>

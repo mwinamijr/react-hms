@@ -68,6 +68,7 @@ const Sidebar = ({ drawerOpen, drawerToggle, window }) => {
             background: theme.palette.background.default,
             color: theme.palette.text.primary,
             borderRight: "none",
+            zIndex: 1100,
             [theme.breakpoints.up("md")]: {
               top: "88px",
               transition: "width 0.3s ease-in-out", // added smooth transition

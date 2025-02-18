@@ -8,7 +8,7 @@ const BaseMovement = () => {
 
   if (!userInfo) return <p>Loading...</p>;
 
-  return userInfo.role === "cashier" ? (
+  return userInfo.user.role === "cashier" ? (
     <CashierPatientMovement />
   ) : (
     <AdminPatientMovement />

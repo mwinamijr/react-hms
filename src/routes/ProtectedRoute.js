@@ -9,7 +9,6 @@ const ProtectedRoute = ({ element }) => {
   useEffect(() => {
     if (!userInfo) {
       navigate("/login"); // Redirect to login page if userInfo is not available (not authenticated)
-      return null; // Return null or a loading spinner while redirecting
     }
   }, [navigate, userInfo]);
 
