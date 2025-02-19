@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Breadcrumb,
@@ -27,6 +27,7 @@ const { Title } = Typography;
 
 const VisitList = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   // Access visit state from the store
   const { loading, error, visits } = useSelector((state) => state.getVisits);
@@ -39,22 +40,20 @@ const VisitList = () => {
   const columns = [
     {
       title: "Visit ID",
-      dataIndex: "visit_id",
-      key: "visit_id",
+      dataIndex: "visit_number",
+      key: "visit_number",
     },
     {
       title: "Full Name",
       key: "fullName",
-      render: (text, record) => (
-        <Link
-          to={`/management/patients/visits/${record.id}`}
-        >{`${record.patient_details.first_name} ${record.patient_details.last_name}`}</Link>
-      ),
+      render: (text, record) =>
+        `${record.patient_details.first_name} ${record.patient_details.last_name}`,
     },
     {
-      title: "Department",
-      dataIndex: "department_name",
-      key: "department",
+      title: "Gender",
+      dataIndex: "gender",
+      key: "gender",
+      render: (text, record) => `${record?.patient_details?.gender}`,
     },
     {
       title: "Visit Date",
@@ -93,15 +92,13 @@ const VisitList = () => {
   return (
     <div>
       {/* Breadcrumb Navigation */}
-      <Breadcrumb style={{ marginBottom: 16 }}>
-        <Breadcrumb.Item>
-          <Link to="/dashboard">Home</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <Link to="/management/patients/visits">Home</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>visits</Breadcrumb.Item>
-      </Breadcrumb>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={[
+          { title: <Link to="/dashboard">Home</Link> },
+          { title: "Visits" },
+        ]}
+      />
 
       {/* Title */}
       <Title level={2} style={{ textAlign: "center", marginBottom: 24 }}>
@@ -150,6 +147,12 @@ const VisitList = () => {
         rowKey="id"
         bordered
         loading={loading}
+        onRow={(record) => ({
+          onClick: () => {
+            navigate(`/management/patients/visits/${record.id}`);
+          },
+          style: { cursor: "pointer" }, // Make it look clickable
+        })}
       />
     </div>
   );

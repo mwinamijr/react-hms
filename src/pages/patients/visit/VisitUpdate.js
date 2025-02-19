@@ -30,22 +30,15 @@ const VisitUpdate = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
-  // Get visit details from Redux store
   const { loading, error, visit } = useSelector((state) => state.getVisits);
-  const { departments, } = useSelector((state) => state.getDepartments); // Assuming departments and doctors are stored in Redux
-  const { users, } = useSelector((state) => state.getUsers); // Assuming departments and doctors are stored in Redux
+  const { departments } = useSelector((state) => state.getDepartments);
+  const { users } = useSelector((state) => state.getUsers);
 
   useEffect(() => {
-    dispatch(visitDetails(id)); // Fetch visit details
+    dispatch(visitDetails(id));
+    dispatch(listDepartments());
+    dispatch(listUsers());
   }, [dispatch, id]);
-
-  useEffect(() => {
-    dispatch(listDepartments())
-  })
-
-  useEffect(()=> {
-    dispatch(listUsers())
-  })
 
   useEffect(() => {
     if (visit) {
@@ -58,10 +51,10 @@ const VisitUpdate = () => {
         date_of_birth: visit.patient_details?.date_of_birth
           ? dayjs(visit.patient_details.date_of_birth)
           : null,
-        
+
         // Visit Information
-        department: visit.department, // Should match Select component value
-        assigned_doctor: visit.assigned_doctor, // Should match Select component value
+        department: visit.department_details.name, // Should match Select component value
+        assigned_doctor: `${visit.doctor_details.first_name} ${visit.doctor_details.last_name}`, // Should match Select component value
         visit_date: visit.visit_date ? dayjs(visit.visit_date) : null,
       });
     }
@@ -89,16 +82,14 @@ const VisitUpdate = () => {
 
   return (
     <div className="edit-profile-container mt-4">
-      {/* Breadcrumb Navigation */}
-      <Breadcrumb style={{ marginBottom: 16 }}>
-        <Breadcrumb.Item>
-          <Link to="/dashboard">Home</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <Link to="/management/patients/visits">Visits</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>Edit Visit</Breadcrumb.Item>
-      </Breadcrumb>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={[
+          { title: <Link to="/dashboard">Home</Link> },
+          { title: <Link to="/management/patients/visits">Visits</Link> },
+          { title: "Visit Update" },
+        ]}
+      />
 
       {loading && <Loader />}
       {error && <Message variant="danger">{error}</Message>}
@@ -163,9 +154,7 @@ const VisitUpdate = () => {
               <Form.Item
                 label="Assigned Doctor"
                 name="assigned_doctor"
-                rules={[
-                  { required: true, message: "Please assign a doctor" },
-                ]}
+                rules={[{ required: true, message: "Please assign a doctor" }]}
               >
                 <Select placeholder="Select Doctor">
                   {users?.map((doc) => (

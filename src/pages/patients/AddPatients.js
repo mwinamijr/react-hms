@@ -24,6 +24,7 @@ import {
 import { listInsuranceCompanies } from "../../store/management/insuranceCompanySlice";
 import { createInsuredPatient } from "../../store/management/insuredPatientSlice";
 import Loader from "../../components/Loader";
+import Message from "../../components/Message";
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -45,7 +46,7 @@ const AddPatient = () => {
 
   useEffect(() => {
     dispatch(listInsuranceCompanies());
-  }, [dispatch]); // Fetch insurance companies on mount
+  }, [dispatch]);
 
   useEffect(() => {
     if (successCreate) {
@@ -55,6 +56,8 @@ const AddPatient = () => {
     }
   }, [dispatch, successCreate, navigate]);
 
+  const [formDataValues, setFormDataValues] = useState(null);
+
   const handleSubmit = (values) => {
     const formData = new FormData();
     Object.keys(values).forEach((key) => {
@@ -63,7 +66,6 @@ const AddPatient = () => {
       }
     });
 
-    // Format date_of_birth correctly
     if (values.date_of_birth) {
       formData.set(
         "date_of_birth",
@@ -71,25 +73,25 @@ const AddPatient = () => {
       );
     }
 
-    // Dispatch createPatient action
-    dispatch(createPatient(formData));
+    setFormDataValues({
+      provider_id: values.provider,
+      policy_number: values.policy_number,
+    });
 
-    // Dispatch createInsuredPatient only if insurance details are provided
-    if (
-      successCreate &&
-      hasInsurance &&
-      values.provider &&
-      values.policy_number
-    ) {
+    dispatch(createPatient(formData));
+  };
+
+  useEffect(() => {
+    if (successCreate && hasInsurance && createdPatient?.id && formDataValues) {
       const insuranceData = new FormData();
-      insuranceData.append("provider_id", values.provider);
-      insuranceData.append("policy_number", values.policy_number);
-      insuranceData.append("patient", createdPatient?.id);
+      insuranceData.append("provider_id", formDataValues.provider_id);
+      insuranceData.append("policy_number", formDataValues.policy_number);
+      insuranceData.append("patient", createdPatient.id);
 
       dispatch(createInsuredPatient(insuranceData));
       message.success("Patient Insurance added successfully!");
     }
-  };
+  }, [successCreate, hasInsurance, createdPatient, dispatch, formDataValues]);
 
   return (
     <div>
@@ -107,7 +109,7 @@ const AddPatient = () => {
           Add Patient
         </Title>
         {error && message.error(error)}
-        {insuredPatientsError && message.error(insuredPatientsError)}
+        {insuredPatientsError && <Message>{insuredPatientsError}</Message>}
         {insuredPatientsLoading && <Loader />}
 
         <Form layout="vertical" onFinish={handleSubmit}>

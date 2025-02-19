@@ -26,6 +26,7 @@ import {
   Row,
   Space,
   Table,
+  Divider,
 } from "antd";
 import { UserOutlined, CalendarOutlined } from "@ant-design/icons";
 
@@ -76,11 +77,11 @@ const VisitDetails = () => {
   }, [dispatch, visit, patient_is_insured]);
 
   const visitPayment = payments.find(
-    (payment) => payment.visit.id === visit?.id
+    (payment) => String(payment.visit_number) === String(visit?.visit_number)
   );
 
   const filteredPaymentItems = paymentItems.filter(
-    (item) => item.payment === visitPayment?.id
+    (item) => Number(item.payment) === Number(visitPayment?.id)
   );
 
   const visitInvoice = invoices.find(
@@ -90,19 +91,17 @@ const VisitDetails = () => {
   const filteredInvoiceItems = invoiceItems.filter(
     (item) => item.invoice === visitInvoice?.id
   );
-  console.log(filteredPaymentItems);
+
   return (
     <div>
-      {/* Breadcrumb Navigation */}
-      <Breadcrumb style={{ marginBottom: 16 }}>
-        <Breadcrumb.Item>
-          <Link to="/dashboard">Home</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>
-          <Link to="/management/patients/visits">Visits</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>Visit Details</Breadcrumb.Item>
-      </Breadcrumb>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={[
+          { title: <Link to="/dashboard">Home</Link> },
+          { title: <Link to="/management/patients/visits">Visits</Link> },
+          { title: "Visit Details" },
+        ]}
+      />
 
       <Card title="Visit Details">
         {loading ? (
@@ -136,7 +135,9 @@ const VisitDetails = () => {
               column={2}
               className="mt-3"
             >
-              <Descriptions.Item label="Visit ID">{visit.id}</Descriptions.Item>
+              <Descriptions.Item label="Visit ID">
+                {visit.visit_number}
+              </Descriptions.Item>
               <Descriptions.Item label="Visit Date">
                 <CalendarOutlined /> {visit.visit_date}
               </Descriptions.Item>
@@ -147,7 +148,15 @@ const VisitDetails = () => {
                 {visit.doctor_name ? visit.doctor_name : "Not assigned"}
               </Descriptions.Item>
               <Descriptions.Item label="Status">
-                <Tag color={visit.status === "completed" ? "green" : "orange"}>
+                <Tag
+                  color={
+                    visit.status === "completed"
+                      ? "green"
+                      : visit.status === "onprogress"
+                      ? "cyan"
+                      : "orange"
+                  }
+                >
                   {visit.status}
                 </Tag>
               </Descriptions.Item>
@@ -171,12 +180,13 @@ const VisitDetails = () => {
               <Descriptions.Item label="Total Amount">
                 <strong>
                   {patient_is_insured
-                    ? visitInvoice.total_amount
-                    : visitPayment.amount}{" "}
+                    ? visitInvoice?.total_amount
+                    : visitPayment?.amount}{" "}
                   TZS
                 </strong>
               </Descriptions.Item>
             </Descriptions>
+            <Divider />
 
             {/* Show Invoice or Payment Items */}
             {patient_is_insured ? (
@@ -218,22 +228,22 @@ const VisitDetails = () => {
                 columns={[
                   {
                     title: "Service",
-                    dataIndex: ["item", "name"], // Fetching from item.name
+                    dataIndex: ["item name"], // Fetching from item.name
                     key: "service_name",
-                    render: (_, record) => record.item?.name || "N/A",
+                    render: (_, record) => record?.item_name || "N/A",
                   },
                   {
                     title: "Description",
                     dataIndex: ["item", "description"], // Fetching from item.description
                     key: "description",
-                    render: (_, record) => record.item?.description || "N/A",
+                    render: (_, record) => record?.item_type || "N/A",
                   },
                   {
                     title: "Amount Paid",
                     dataIndex: ["item", "price"], // Fetching from item.price
                     key: "amount",
                     render: (_, record) =>
-                      `${record.item?.price?.toLocaleString()} TZS` || "N/A",
+                      `TSH ${record?.item_price?.toLocaleString()}` || "N/A",
                   },
                   {
                     title: "Status",

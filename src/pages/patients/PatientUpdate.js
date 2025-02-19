@@ -37,7 +37,9 @@ const PatientUpdate = () => {
   const { insuranceCompanies } = useSelector(
     (state) => state.getInsuranceCompanies
   );
-  const { insuredPatients } = useSelector((state) => state.getInsuredPatients);
+  const { insuredPatients, error: insuranceError } = useSelector(
+    (state) => state.getInsuredPatients
+  );
   const isInsured = !!insuredPatients?.find((insuredPatient) => {
     return (
       String(insuredPatient?.insured_patient?.patient_number) ===
@@ -45,11 +47,18 @@ const PatientUpdate = () => {
     );
   });
 
-  console.log(isInsured);
+  const insuranceDetails = insuredPatients?.find((insuredPatient) => {
+    return (
+      String(insuredPatient?.insured_patient?.patient_number) ===
+        String(patient?.patient_number) || null
+    );
+  });
+
+  console.log(insuranceDetails);
 
   const [form] = Form.useForm();
   const [hasInsurance, setHasInsurance] = useState(false);
-  const [insuredPatientId, setInsuredPatientId] = useState(null);
+  const [insuranceId, setInsuranceId] = useState(null);
 
   useEffect(() => {
     dispatch(patientDetails(id));
@@ -62,42 +71,42 @@ const PatientUpdate = () => {
       form.setFieldsValue({
         ...patient,
         date_of_birth: patient.date_of_birth ? patient.date_of_birth : "",
-        provider: patient.insurance?.provider?.id || undefined,
-        policy_number: patient.insurance?.policy_number || "",
+        provider: insuranceDetails?.provider?.id || undefined,
+        policy_number: insuranceDetails?.policy_number || "",
       });
 
-      if (patient.insurance) {
+      if (isInsured) {
         setHasInsurance(true);
-        setInsuredPatientId(patient.insurance.id);
+        setInsuranceId(insuranceDetails?.id);
       }
     }
-  }, [patient, form]);
+  }, [patient, isInsured, insuranceDetails, form]);
 
   const onFinish = async (values) => {
     try {
-      await dispatch(updatePatient({ id, values })).unwrap();
+      await dispatch(updatePatient({ id, ...values })).unwrap();
       message.success("Patient updated successfully!");
 
       // If the patient has insurance, update it
       if (
         hasInsurance &&
-        insuredPatientId &&
+        insuranceId &&
         values.provider &&
         values.policy_number
       ) {
-        if (isInsured) {
-          await dispatch(
-            updateInsuredPatient({
-              id: insuredPatientId,
-              formData: {
-                provider_id: values.provider,
-                policy_number: values.policy_number,
-                patient: id,
-              },
-            })
-          ).unwrap();
-          message.success("Insurance details updated!");
-        }
+        const formData = {
+          provider_id: values.provider,
+          policy_number: values.policy_number,
+          patient: id,
+        };
+        dispatch(
+          updateInsuredPatient({
+            id: insuranceId,
+            ...formData,
+          })
+        ).unwrap();
+        message.success("Insurance details updated!");
+      } else {
         dispatch(
           createInsuredPatient({
             provider_id: values.provider,
@@ -107,7 +116,7 @@ const PatientUpdate = () => {
         );
       }
 
-      navigate(`/patients/${id}`);
+      navigate(`/management/patients/${id}`);
     } catch (error) {
       message.error("Failed to update patient. Please try again.");
     }
@@ -127,6 +136,7 @@ const PatientUpdate = () => {
 
       {loading && <Loader />}
       {error && <Message>{error}</Message>}
+      {insuranceError && <Message>{insuranceError}</Message>}
 
       <Card title={<Title level={4}>Update Patient Details</Title>}>
         <Form form={form} layout="vertical" onFinish={onFinish}>
@@ -148,6 +158,13 @@ const PatientUpdate = () => {
             rules={[{ required: true, message: "Last Name is required" }]}
           >
             <Input />
+          </Form.Item>
+
+          <Form.Item label="Gender" name="gender">
+            <Select>
+              <Option value="male">Male</Option>
+              <Option value="female">Female</Option>
+            </Select>
           </Form.Item>
 
           <Form.Item

@@ -92,7 +92,7 @@ const CashierPatientMovement = () => {
               status === "started"
                 ? "blue"
                 : status === "onprogress"
-                ? "light-blue"
+                ? "lightBlue"
                 : status === "pending"
                 ? "orange"
                 : "green",
