@@ -9,7 +9,7 @@ const BaseMovement = () => {
 
   if (!userInfo) return <Loader />;
 
-  return userInfo.user.role === "cashier" ? (
+  return userInfo.user.role === "cashierr" ? (
     <CashierMovementDetails />
   ) : (
     <AdminMovementDetails />

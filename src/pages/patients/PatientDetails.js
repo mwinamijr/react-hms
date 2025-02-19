@@ -11,6 +11,7 @@ import {
   Tag,
   Typography,
   Button,
+  Breadcrumb,
   Col,
   Row,
   Space,
@@ -21,23 +22,41 @@ import {
   PhoneOutlined,
   HomeOutlined,
 } from "@ant-design/icons";
+import { listInsuredPatients } from "../../store/management/insuredPatientSlice";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const PatientDetails = () => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const { loading, error, patient } = useSelector((state) => state.getPatients);
+  const { insuredPatients } = useSelector((state) => state.getInsuredPatients);
 
   useEffect(() => {
     dispatch(patientDetails(id));
+    dispatch(listInsuredPatients());
   }, [dispatch, id]);
+
+  const getInsurer = () => {
+    const insuredPatient = insuredPatients.find(
+      (insured) =>
+        String(insured.insured_patient.patient_number) ===
+        String(patient?.patient_number)
+    );
+    return insuredPatient ? insuredPatient : "Cash";
+  };
+  const insurance = getInsurer();
 
   return (
     <div>
-      <Link to="/management/patients" className="ant-btn ant-btn-link mb-4">
-        Go Back
-      </Link>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={[
+          { title: <Link to="/dashboard">Home</Link> },
+          { title: <Link to="/management/patients">Patients</Link> },
+          { title: "Patient Details" },
+        ]}
+      />
 
       <Card title="Patient Profile">
         {loading ? (
@@ -117,18 +136,20 @@ const PatientDetails = () => {
 
             <Descriptions title="Insurance & Payment" bordered column={2}>
               <Descriptions.Item label="Payment Method">
-                {patient.payment_method}
+                {insurance === "Cash" ? "Cash" : insurance.provider.name}
               </Descriptions.Item>
-              {patient.payment_method === "insurance" && (
-                <>
-                  <Descriptions.Item label="Provider">
-                    {patient.insurance_provider}
-                  </Descriptions.Item>
-                  <Descriptions.Item label="Policy #">
-                    {patient.insurance_policy_number}
-                  </Descriptions.Item>
-                </>
-              )}
+              {insurance !== "Cash" &&
+                typeof insurance === "object" &&
+                insurance.provider && (
+                  <>
+                    <Descriptions.Item label="Provider">
+                      {insurance.provider.name}
+                    </Descriptions.Item>
+                    <Descriptions.Item label="Policy #">
+                      {insurance.policy_number || "N/A"}
+                    </Descriptions.Item>
+                  </>
+                )}
             </Descriptions>
           </div>
         ) : (

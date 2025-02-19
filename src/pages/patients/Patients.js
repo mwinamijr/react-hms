@@ -58,10 +58,9 @@ const PatientList = () => {
       key: "phone",
     },
     {
-      title: "Department",
-      dataIndex: ["department", "name"],
-      key: "department",
-      render: (department) => department || "N/A",
+      title: "Gender",
+      dataIndex: ["gender"],
+      key: "gender",
     },
     {
       title: "Actions",
@@ -88,12 +87,13 @@ const PatientList = () => {
   return (
     <div>
       {/* Breadcrumb Navigation */}
-      <Breadcrumb style={{ marginBottom: 16 }}>
-        <Breadcrumb.Item>
-          <Link to="/dashboard">Home</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>Patients</Breadcrumb.Item>
-      </Breadcrumb>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={[
+          { title: <Link to="/dashboard">Home</Link> },
+          { title: "Patients" },
+        ]}
+      />
 
       {/* Title */}
       <Typography.Title level={3} style={{ textAlign: "center" }}>

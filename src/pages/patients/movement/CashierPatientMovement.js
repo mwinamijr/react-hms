@@ -41,8 +41,7 @@ const CashierPatientMovement = () => {
 
   // **Filter Data Based on Active Tab**
   const filteredVisits = cashOnlyVisits.filter((visit) => {
-    if (activeTab === "myTask")
-      return visit.status === "started" || visit.status === "pending";
+    if (activeTab === "myTask") return visit.status === "pending";
     if (activeTab === "inpatientCenter")
       return visit.department_details?.name === "inpatient";
     if (activeTab === "todayList")

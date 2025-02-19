@@ -25,7 +25,7 @@ const PatientMovement = () => {
 
   // **Filter Data Based on Active Tab**
   const filteredVisits = visits.filter((visit) => {
-    if (activeTab === "myTask") return visit.status === "started" || "pending"; // New tasks
+    if (activeTab === "myTask") return visit.status === "pending"; // New tasks
     if (activeTab === "taskAssignedOut") return visit.status === "onprogress"; // Tasks in progress
     if (activeTab === "todayList")
       return visit.visit_date === new Date().toISOString().split("T")[0]; // Today's visits
@@ -73,10 +73,8 @@ const PatientMovement = () => {
         <span
           style={{
             color:
-              status === "started"
-                ? "blue"
-                : status === "onprogress"
-                ? "light-blue"
+              status === "onprogress"
+                ? "lightBlue"
                 : status === "pending"
                 ? "orange"
                 : "green",
