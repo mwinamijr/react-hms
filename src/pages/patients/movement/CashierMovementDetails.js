@@ -13,6 +13,8 @@ import {
   Typography,
   Table,
   Checkbox,
+  Divider,
+  message,
 } from "antd";
 import {
   UserOutlined,
@@ -26,6 +28,7 @@ import Loader from "../../../components/Loader";
 import { visitDetails } from "../../../store/patient/visitSlice";
 import { listInsuredPatients } from "../../../store/management/insuredPatientSlice";
 import {
+  completePayments,
   listVisitPaymentItems,
   listVisitPayments,
 } from "../../../store/finance/paymentSlice";
@@ -48,6 +51,8 @@ const MovementDetails = () => {
     error: paymentError,
     payments,
     paymentItems,
+    completed,
+    successUpdate,
   } = useSelector((state) => state.getPayments);
 
   useEffect(() => {
@@ -56,6 +61,31 @@ const MovementDetails = () => {
     dispatch(listVisitPayments(id));
     dispatch(listVisitPaymentItems(id));
   }, [dispatch, id]);
+
+  const [selectedItems, setSelectedItems] = useState([]);
+
+  // **Checkbox Handler**
+  const handleCheckboxChange = (itemId) => {
+    setSelectedItems((prevSelected) =>
+      prevSelected.includes(itemId)
+        ? prevSelected.filter((id) => id !== itemId)
+        : [...prevSelected, itemId]
+    );
+  };
+
+  const submitHandler = () => {
+    if (selectedItems.length === 0) return;
+
+    const values = {
+      payment_id: payments?.id,
+      item_ids: selectedItems,
+    };
+
+    dispatch(completePayments({ id, values }));
+    if (successUpdate) {
+      message.success(`${completed.details}`);
+    }
+  };
 
   const getAge = (dob) => {
     if (!dob) return "N/A";
@@ -81,22 +111,47 @@ const MovementDetails = () => {
     return insuredPatient ? insuredPatient.provider.name : "Cash";
   };
 
-  // State to control which component is displayed
   const [activeComponent, setActiveComponent] = useState(null);
 
   const posPayments = paymentItems
     .filter((item) => item.item_type === "Consultation fee")
     .map((item) => ({ ...item, key: item.id }));
 
+  const sum = (items) =>
+    items.reduce((acc, item) => acc + (item.item_price || 0), 0);
+
+  const pendingPayments =
+    paymentItems?.filter((item) => item.status === "pending") || [];
+  const totalRemaining = sum(pendingPayments);
+  const totalPaid = sum(
+    paymentItems?.filter((item) => item.status === "completed") || []
+  );
+  const noOfPendingPayments = pendingPayments.length;
+  const totalRequired = payments?.amount || 0;
+
   const posColumns = [
     { title: "Name", dataIndex: "item_name", key: "item_name" },
-    { title: "Price ($)", dataIndex: "item_price", key: "item_price" },
+    { title: "Price (Tsh)", dataIndex: "item_price", key: "item_price" },
     { title: "Status", dataIndex: "status", key: "status" },
     {
-      title: "Received",
-      dataIndex: "received",
-      key: "received",
-      render: (_, record) => <Checkbox checked={record.received} />,
+      title: "Completed",
+      dataIndex: "completed",
+      key: "completed",
+      render: (_, record) => (
+        <Checkbox checked={record.status === "completed"} disabled />
+      ),
+    },
+    {
+      title: "Select",
+      dataIndex: "select",
+      key: "select",
+      render: (_, record) => (
+        <Checkbox
+          checked={selectedItems.includes(record.id)}
+          onChange={() => handleCheckboxChange(record.id)}
+          disabled={record.status === "completed"}
+        />
+      ),
     },
   ];
 
@@ -131,7 +186,7 @@ const MovementDetails = () => {
     { title: "Code", dataIndex: "code", key: "code" },
     { title: "Name", dataIndex: "name", key: "name" },
     { title: "Quantity", dataIndex: "quantity", key: "quantity" },
-    { title: "Price ($)", dataIndex: "price", key: "price" },
+    { title: "Price (Tsh)", dataIndex: "price", key: "price" },
     {
       title: "Received",
       dataIndex: "received",
@@ -149,7 +204,7 @@ const MovementDetails = () => {
   const servicesColumns = [
     { title: "Code", dataIndex: "code", key: "code" },
     { title: "Service", dataIndex: "name", key: "name" },
-    { title: "Price ($)", dataIndex: "price", key: "price" },
+    { title: "Price (TSH)", dataIndex: "price", key: "price" },
     {
       title: "Received",
       dataIndex: "received",
@@ -211,6 +266,54 @@ const MovementDetails = () => {
       ),
     },
   ];
+
+  const PaymentTop = () => (
+    <div>
+      <Title level={4}>
+        <u>Amount required - {totalRequired}</u>
+      </Title>
+      <Table
+        dataSource={[
+          {
+            key: "date",
+            label: "Visit Date",
+            value: visit.visit_date,
+          },
+          {
+            key: "1",
+            label: "Pending Payments",
+            value: noOfPendingPayments,
+          },
+          {
+            key: "2",
+            label: "Total Remaining",
+            value: totalRemaining,
+          },
+          {
+            key: "3",
+            label: "Total Paid",
+            value: totalPaid,
+          },
+        ]}
+        pagination={false}
+        columns={[
+          {
+            title: "Description",
+            dataIndex: "label",
+            key: "label",
+          },
+          {
+            title: "Amount",
+            dataIndex: "value",
+            key: "value",
+            render: (text) => <strong>{text}</strong>,
+          },
+        ]}
+        bordered
+      />
+      <Divider />
+    </div>
+  );
 
   return (
     <div>
@@ -320,19 +423,37 @@ const MovementDetails = () => {
 
       {activeComponent === "pharmacy" && (
         <Card title="Pharmacy" style={{ marginTop: 20 }}>
+          <PaymentTop />
           <Table dataSource={pharmacyData} columns={columns} />
         </Card>
       )}
 
       {activeComponent === "services" && (
         <Card title="Medical Services" style={{ marginTop: 20 }}>
+          <PaymentTop />
           <Table dataSource={servicesData} columns={servicesColumns} />
         </Card>
       )}
 
       {activeComponent === "pos" && (
         <Card title="POS Invoice" style={{ marginTop: 20 }}>
+          <PaymentTop
+            totalRequired={totalRequired}
+            noOfPendingPayments={noOfPendingPayments}
+            totalRemaining={totalRemaining}
+            totalPaid={totalPaid}
+          />
           <Table dataSource={posPayments} columns={posColumns} />
+
+          <Button
+            type="primary"
+            htmlType="submit"
+            block
+            disabled={paymentLoading || selectedItems.length === 0}
+            onClick={submitHandler}
+          >
+            {paymentLoading ? "Submitting..." : "Submit Payment"}
+          </Button>
         </Card>
       )}
     </div>

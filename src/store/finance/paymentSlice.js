@@ -97,7 +97,6 @@ export const listVisitPayments = createAsyncThunk(
           Authorization: `Bearer ${userInfo.access}`,
         },
       };
-      console.log("visit payments calling");
       const { data } = await axios.get(
         `${djangoUrl}/api/payments/visits/${id}/payments/`,
         config
@@ -121,7 +120,6 @@ export const listVisitPaymentItems = createAsyncThunk(
           Authorization: `Bearer ${userInfo.access}`,
         },
       };
-      console.log("visit payment items calling");
       const { data } = await axios.get(
         `${djangoUrl}/api/payments/visits/${id}/payment-items/`,
         config
@@ -275,6 +273,34 @@ export const updatePaymentItem = createAsyncThunk(
   }
 );
 
+export const completePayments = createAsyncThunk(
+  "payment/completePayments",
+  async ({ id, values }, { getState, rejectWithValue }) => {
+    try {
+      const {
+        getUsers: { userInfo },
+      } = getState();
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo.access}`,
+          "Content-Type": "application/json",
+        },
+      };
+
+      const { data } = await axios.post(
+        `${djangoUrl}/api/payments/visits/${id}/complete-payment/`,
+        values,
+        config
+      );
+      console.log(data);
+      return data;
+    } catch (error) {
+      return rejectWithValue(getErrorMessage(error));
+    }
+  }
+);
+
 const paymentSlice = createSlice({
   name: "payment",
   initialState: {
@@ -282,6 +308,8 @@ const paymentSlice = createSlice({
     payment: null,
     paymentItems: [],
     paymentItem: null,
+    completed: null,
+    successUpdate: false,
     loading: false,
     error: null,
   },
@@ -388,6 +416,18 @@ const paymentSlice = createSlice({
         );
       })
       .addCase(deletePaymentItem.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(completePayments.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(completePayments.fulfilled, (state, action) => {
+        state.loading = false;
+        state.successUpdate = true;
+        state.completed = action.payload;
+      })
+      .addCase(completePayments.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });
