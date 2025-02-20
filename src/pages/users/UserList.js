@@ -86,12 +86,13 @@ const UserList = () => {
 
   return (
     <div>
-      <Breadcrumb style={{ marginBottom: 16 }}>
-        <Breadcrumb.Item>
-          <Link to="/dashboard">Home</Link>
-        </Breadcrumb.Item>
-        <Breadcrumb.Item>Users</Breadcrumb.Item>
-      </Breadcrumb>
+      <Breadcrumb
+        style={{ marginBottom: 16 }}
+        items={[
+          { title: <Link to="/dashboard">Home</Link> },
+          { title: "Users" },
+        ]}
+      />
 
       <Typography.Title level={3} style={{ textAlign: "center" }}>
         Users

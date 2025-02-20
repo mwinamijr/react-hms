@@ -272,7 +272,7 @@ const MovementDetails = ({ patient }) => {
                 fontSize: "1.1rem",
               }}
             >
-              {visit?.department_details.name} <hr />
+              {visit?.department_details?.name} <hr />
             </span>
           </Col>
         </Row>

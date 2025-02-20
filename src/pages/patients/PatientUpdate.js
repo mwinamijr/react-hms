@@ -54,8 +54,6 @@ const PatientUpdate = () => {
     );
   });
 
-  console.log(insuranceDetails);
-
   const [form] = Form.useForm();
   const [hasInsurance, setHasInsurance] = useState(false);
   const [insuranceId, setInsuranceId] = useState(null);
@@ -106,7 +104,7 @@ const PatientUpdate = () => {
           })
         ).unwrap();
         message.success("Insurance details updated!");
-      } else {
+      } else if (hasInsurance && values.provider && values.policy_number) {
         dispatch(
           createInsuredPatient({
             provider_id: values.provider,
