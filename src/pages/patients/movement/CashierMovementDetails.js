@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Breadcrumb,
@@ -37,6 +37,7 @@ const { Title, Text } = Typography;
 
 const MovementDetails = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { id } = useParams();
 
   // Redux State
@@ -81,7 +82,10 @@ const MovementDetails = () => {
       item_ids: selectedItems,
     };
 
-    dispatch(completePayments({ id, values }));
+    dispatch(completePayments({ id, values })).then(
+      message.success("payment updated successfully!"),
+      navigate("/management/patients/movement")
+    );
     if (successUpdate) {
       message.success(`${completed.details}`);
     }
@@ -108,7 +112,7 @@ const MovementDetails = () => {
         String(insured.insured_patient.patient_number) ===
         String(visit?.patient_details?.patient_number)
     );
-    return insuredPatient ? insuredPatient.provider.name : "Cash";
+    return insuredPatient ? insuredPatient?.provider?.name : "Cash";
   };
 
   const [activeComponent, setActiveComponent] = useState(null);
@@ -374,7 +378,7 @@ const MovementDetails = () => {
                 fontSize: "1.1rem",
               }}
             >
-              {visit?.department_details.name}
+              {visit?.department_details?.name}
             </span>
           </Col>
         </Row>

@@ -15,7 +15,7 @@ import {
   Form,
   message,
   Select,
-  Drawer,
+  Modal,
   Input,
 } from "antd";
 import {
@@ -38,7 +38,7 @@ const MovementDetails = ({ patient }) => {
   const dispatch = useDispatch();
   const { id } = useParams();
   const [form] = Form.useForm(); // Form instance
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Control drawer visibility
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Redux State
   const { departments, loading: departmentsLoading } = useSelector(
@@ -126,7 +126,7 @@ const MovementDetails = ({ patient }) => {
       doctorChanged ||
       (comment && comment.trim() !== "")
     ) {
-      setIsDrawerOpen(false);
+      setIsModalOpen(false);
       form.resetFields();
     }
   };
@@ -164,8 +164,6 @@ const MovementDetails = ({ patient }) => {
   };
 
   // Drawer Controls
-  const showDrawer = () => setIsDrawerOpen(true);
-  const closeDrawer = () => setIsDrawerOpen(false);
   const [forResult, setForResult] = useState(true);
   const [makeConfidential, setMakeConfidential] = useState(true);
 
@@ -282,7 +280,7 @@ const MovementDetails = ({ patient }) => {
           <Button
             type="primary"
             icon={<ForwardOutlined />}
-            onClick={showDrawer}
+            onClick={() => setIsModalOpen(true)}
           >
             Assign Forward
           </Button>
@@ -296,11 +294,12 @@ const MovementDetails = ({ patient }) => {
         </Row>
       </Card>
       {/* Drawer for Assigning Forward */}
-      <Drawer
+      <Modal
         title="Assign Forward"
-        open={isDrawerOpen}
-        onClose={closeDrawer}
+        open={isModalOpen}
+        onCancel={() => setIsModalOpen(false)}
         width={600}
+        footer={null}
       >
         <br />
         <Card className="mt-4 text-center">
@@ -361,7 +360,10 @@ const MovementDetails = ({ patient }) => {
           </Checkbox>
 
           <Row justify="end">
-            <Button onClick={closeDrawer} style={{ marginRight: 8 }}>
+            <Button
+              onClick={() => setIsModalOpen(false)}
+              style={{ marginRight: 8 }}
+            >
               Cancel
             </Button>
             <Button type="primary" htmlType="submit" loading={assignLoading}>
@@ -369,7 +371,7 @@ const MovementDetails = ({ patient }) => {
             </Button>
           </Row>
         </Form>
-      </Drawer>
+      </Modal>
       {/* Collapsible Sections */}
       <Collapse accordion items={collapseItems} />;
     </div>

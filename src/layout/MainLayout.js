@@ -158,16 +158,22 @@ const MainLayout = () => {
     token: { colorBgContainer },
   } = theme.useToken();
 
-  const selectedKeys = useMemo(() => [location.pathname], [location.pathname]);
+  const selectedKeys = useMemo(() => {
+    // Extract the last segment of the path as the selected key
+    const pathSegments = location.pathname.split("/").filter(Boolean);
+    return pathSegments.length > 0 ? [pathSegments.join("/")] : [];
+  }, [location.pathname]);
 
   useEffect(() => {
-    const pathSegments = selectedKeys[0].split("/").slice(1, -1); // Parent path
-    setOpenKeys(pathSegments.length > 0 ? [pathSegments.join("/")] : []);
-  }, [selectedKeys]);
+    const pathSegments = location.pathname.split("/").filter(Boolean);
+    if (pathSegments.length > 1) {
+      setOpenKeys([pathSegments[0]]);
+    }
+  }, [location.pathname]);
 
   const onOpenChange = (keys) => {
     const latestOpenKey = keys.find((key) => !openKeys.includes(key));
-    setOpenKeys(latestOpenKey ? [latestOpenKey] : []); // Keep only the latest opened key
+    setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
   };
 
   useEffect(() => {
