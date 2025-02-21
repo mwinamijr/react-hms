@@ -4,7 +4,6 @@ import {
   DashboardOutlined,
   UserOutlined,
   BankOutlined,
-  LogoutOutlined,
   PlusCircleOutlined,
   AppstoreOutlined,
   HeartOutlined,
@@ -15,33 +14,17 @@ import {
   MergeCellsOutlined,
   InboxOutlined,
   ShopOutlined,
+  SyncOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
-
 import { Layout, Menu, theme, Grid } from "antd";
 
 import HeaderComponent from "./header/ProfileSection";
 import NotificationSection from "./header/NotificationSection";
 import logo from "../assets/images/techdome.svg";
 
-const icons = {
-  DashboardIcon: DashboardOutlined,
-  ManagementIcon: UsergroupAddOutlined,
-  MergeIcon: MergeCellsOutlined,
-  MovementIcon: InboxOutlined,
-  UserIcon: UserOutlined,
-  FinanceIcon: BankOutlined,
-  LogoutIcon: LogoutOutlined,
-  RegisterIcon: PlusCircleOutlined,
-  ManagementMainIcon: AppstoreOutlined,
-  MedicalIcon: HeartOutlined,
-  TreatmentIcon: ExperimentOutlined,
-  PharmacyIcon: MedicineBoxOutlined,
-  ReportIcon: FileTextOutlined,
-  DepartmentIcon: ShopOutlined,
-};
-
 const { Header, Content, Footer, Sider } = Layout;
-const { useBreakpoint } = Grid; // For responsive behavior
+const { useBreakpoint } = Grid;
 
 function getItem(label, key, icon, children) {
   return {
@@ -51,55 +34,124 @@ function getItem(label, key, icon, children) {
     label,
   };
 }
+
 const items = [
   getItem(
     <Link to="/dashboard">Dashboard</Link>,
     "dashboard",
-    <icons.DashboardIcon />
+    <DashboardOutlined />
   ),
-  getItem("Management", "management", <icons.ManagementIcon />, [
+  getItem("Management", "management", <UsergroupAddOutlined />, [
     getItem(
       <Link to="/management/patients">Patients</Link>,
       "patients",
-      <icons.UserIcon />
+      <UserOutlined />
     ),
     getItem(
       <Link to="/management/patients/merge">Merge Patients</Link>,
       "merge",
-      <icons.MergeIcon />
+      <MergeCellsOutlined />
     ),
     getItem(
       <Link to="/management/patients/movement">Patient Movement</Link>,
       "movement",
-      <icons.MovementIcon />
+      <InboxOutlined />
     ),
     getItem(
       <Link to="/management/patients/visits">Assign Visit</Link>,
       "visits",
-      <icons.RegisterIcon />
+      <PlusCircleOutlined />
     ),
     getItem(
       <Link to="/management/departments">Department</Link>,
       "departments",
-      <icons.DepartmentIcon />
+      <ShopOutlined />
     ),
   ]),
-  getItem("Team", "sub2", <icons.MedicalIcon />, [
-    getItem("Team 1", "team1"),
-    getItem("Team 2", "team2"),
+  getItem("Treatment", "treatment", <HeartOutlined />, [
+    getItem("Consultation", "consultation", <ExperimentOutlined />),
   ]),
-  getItem(
-    "Hospital Management",
-    "hospitalManagement",
-    <icons.ManagementMainIcon />,
-    [getItem("Team 1", "6"), getItem("Team 2", "8")]
-  ),
-  getItem("Files", "9", <icons.UserIcon />),
+  getItem("Pharmacy", "pharmacy", <MedicineBoxOutlined />, [
+    getItem(
+      <Link to="/pharmacy/prescriptions">Prescriptions</Link>,
+      "prescriptions",
+      <MedicineBoxOutlined />
+    ),
+    getItem(
+      <Link to="/pharmacy/dispense-medicines">Dispense Medicines</Link>,
+      "dispense",
+      <MedicineBoxOutlined />
+    ),
+  ]),
+  getItem("Tests", "tests", <MedicineBoxOutlined />, [
+    getItem(
+      <Link to="/tests/laboratory">Laboratory</Link>,
+      "laboratory",
+      <FileTextOutlined />
+    ),
+    getItem(
+      <Link to="/tests/radiology">Radiology</Link>,
+      "radiology",
+      <FileTextOutlined />
+    ),
+  ]),
+  getItem("Finance", "finance", <BankOutlined />, [
+    getItem(
+      <Link to="/finance/payments">Payments</Link>,
+      "payments",
+      <BankOutlined />
+    ),
+    getItem(
+      <Link to="/finance/invoices">Invoices</Link>,
+      "invoices",
+      <FileTextOutlined />
+    ),
+  ]),
+  getItem("Hospital Management", "hospitalManagement", <AppstoreOutlined />, [
+    getItem(
+      <Link to="/management/insurance-companies">Insurance Companies</Link>,
+      "insuranceCompanies",
+      <ShopOutlined />
+    ),
+    getItem(
+      <Link to="/management/insurance">Insured Patients</Link>,
+      "insuredPatients",
+      <UserOutlined />
+    ),
+    getItem(
+      <Link to="/management/hospital-items">Hospital Items</Link>,
+      "hospitalItems",
+      <ShopOutlined />
+    ),
+    getItem(
+      <Link to="/management/item-types">Item Types</Link>,
+      "itemTypes",
+      <ShopOutlined />
+    ),
+  ]),
+  getItem("Hospital Settings", "hospitalSettings", <SettingOutlined />, [
+    getItem(<Link to="/users">Users</Link>, "users", <UserOutlined />),
+    getItem(
+      <Link to="/hospital-settings/notes-board">Notes Board</Link>,
+      "notesBoard",
+      <FileTextOutlined />
+    ),
+    getItem(
+      <Link to="/hospital-settings/permissions">Permissions</Link>,
+      "permissions",
+      <AppstoreOutlined />
+    ),
+    getItem(
+      <Link to="/hospital-settings/data-sync">Data Sync</Link>,
+      "dataSync",
+      <SyncOutlined />
+    ),
+  ]),
 ];
 
 const MainLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [openKeys, setOpenKeys] = useState([]);
+  const [openKeys, setOpenKeys] = useState([]); // Store expanded keys
   const screens = useBreakpoint();
   const location = useLocation();
   const {
@@ -108,37 +160,30 @@ const MainLayout = () => {
 
   const selectedKeys = useMemo(() => [location.pathname], [location.pathname]);
 
-  // Automatically open the parent menu of the active menu item
   useEffect(() => {
-    const parentKeys = selectedKeys[0].split("/").slice(1, -1).join("/");
-    setOpenKeys([parentKeys || ""]);
+    const pathSegments = selectedKeys[0].split("/").slice(1, -1); // Parent path
+    setOpenKeys(pathSegments.length > 0 ? [pathSegments.join("/")] : []);
   }, [selectedKeys]);
 
-  // Handle submenu open/close events to allow only one open submenu
   const onOpenChange = (keys) => {
     const latestOpenKey = keys.find((key) => !openKeys.includes(key));
-    setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+    setOpenKeys(latestOpenKey ? [latestOpenKey] : []); // Keep only the latest opened key
   };
 
-  // Automatically collapse sidebar on small screens
   useEffect(() => {
     if (screens.md === false) {
-      setCollapsed(true); // Collapse only on small screens
+      setCollapsed(true);
     } else {
-      setCollapsed(false); // Ensure it stays open on larger screens
+      setCollapsed(false);
     }
   }, [screens]);
 
   return (
-    <Layout
-      style={{
-        minHeight: "100vh",
-      }}
-    >
+    <Layout style={{ minHeight: "100vh" }}>
       <Header
         style={{
           padding: "0 20px",
-          background: colorBgContainer,
+          background: "#2a4b8d",
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
@@ -171,39 +216,27 @@ const MainLayout = () => {
           <div className="demo-logo-vertical" />
           <Menu
             theme="dark"
-            defaultSelectedKeys={["1"]}
             mode="inline"
             selectedKeys={selectedKeys}
             openKeys={openKeys}
             onOpenChange={onOpenChange}
             items={items}
+            className="custom-menu"
           />
         </Sider>
         <Layout>
-          <Content
-            style={{
-              margin: "0 4px",
-            }}
-          >
-            <div
-              style={{
-                padding: 24,
-                background: colorBgContainer,
-              }}
-            >
+          <Content style={{ margin: "0 4px" }}>
+            <div style={{ padding: 24, background: colorBgContainer }}>
               <Outlet />
             </div>
           </Content>
-          <Footer
-            style={{
-              textAlign: "center",
-            }}
-          >
-            Ant Design ©{new Date().getFullYear()} Created by Ant UED
+          <Footer style={{ textAlign: "center" }}>
+            Tech HMS 2024 - ©{new Date().getFullYear()}. Created by Techdometz
           </Footer>
         </Layout>
       </Layout>
     </Layout>
   );
 };
+
 export default MainLayout;

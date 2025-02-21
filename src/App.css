@@ -50,3 +50,13 @@
   border: 1px solid #ddd;
   text-align: left;
 }
+
+.custom-menu .ant-menu-item-selected {
+  background-color: #2a4b8d !important; /* Light dark blue color */
+  color: white !important; /* Make text color white */
+}
+
+.custom-menu .ant-menu-item:hover {
+  background-color: #2a4b8d !important;
+  color: white !important;
+}

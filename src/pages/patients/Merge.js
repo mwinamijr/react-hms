@@ -1,15 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Button,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  FormHelperText,
-  Typography,
-  Box,
-} from "@mui/material";
+import { Button, Select, Form, Typography, Space } from "antd";
 import { listPatients } from "../../store/patient/patientSlice"; // Assuming this is the correct path
 import Loader from "../../components/Loader";
 import Message from "../../components/Message";
@@ -23,7 +14,7 @@ const MergePatients = () => {
 
   const [patient1, setPatient1] = useState("");
   const [patient2, setPatient2] = useState("");
-  const [message, setMessage] = useState("");
+  const [setMessage] = useState("");
 
   useEffect(() => {
     dispatch(listPatients()); // Fetch patients when the page is loaded
@@ -41,68 +32,50 @@ const MergePatients = () => {
     }
   };
 
+  const { Option } = Select;
+
   return (
     <div>
-      <Typography variant="h4" align="center" gutterBottom>
+      <Typography.Title level={2} style={{ textAlign: "center" }}>
         Merge Patients
-      </Typography>
+      </Typography.Title>
 
       {/* Form */}
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-          alignItems: "center",
-        }}
-      >
-        <FormControl fullWidth>
-          <InputLabel id="patient1-label">Select Patient 1</InputLabel>
+      <Form onSubmit={handleSubmit} style={{ maxWidth: 500, margin: "0 auto" }}>
+        <Form.Item label="Select Patient 1" name="patient1" required>
           <Select
-            labelId="patient1-label"
             value={patient1}
-            onChange={(e) => setPatient1(e.target.value)}
-            label="Select Patient 1"
+            onChange={(value) => setPatient1(value)}
+            placeholder="Select Patient 1"
           >
             {patients.map((patient) => (
-              <MenuItem key={patient.id} value={patient.id}>
+              <Option key={patient.id} value={patient.id}>
                 {`${patient.first_name} ${patient.last_name}`}
-              </MenuItem>
+              </Option>
             ))}
           </Select>
-          <FormHelperText>Choose the first patient to merge</FormHelperText>
-        </FormControl>
+        </Form.Item>
 
-        <FormControl fullWidth>
-          <InputLabel id="patient2-label">Select Patient 2</InputLabel>
+        <Form.Item label="Select Patient 2" name="patient2" required>
           <Select
-            labelId="patient2-label"
             value={patient2}
-            onChange={(e) => setPatient2(e.target.value)}
-            label="Select Patient 2"
+            onChange={(value) => setPatient2(value)}
+            placeholder="Select Patient 2"
           >
             {patients.map((patient) => (
-              <MenuItem key={patient.id} value={patient.id}>
+              <Option key={patient.id} value={patient.id}>
                 {`${patient.first_name} ${patient.last_name}`}
-              </MenuItem>
+              </Option>
             ))}
           </Select>
-          <FormHelperText>Choose the second patient to merge</FormHelperText>
-        </FormControl>
+        </Form.Item>
 
-        <Button variant="contained" color="primary" type="submit">
-          Merge Patients
-        </Button>
-      </Box>
-
-      {/* Message */}
-      {message && (
-        <Message severity="error" align="center" sx={{ marginTop: 2 }}>
-          {message}
-        </Message>
-      )}
+        <Space style={{ width: "100%", justifyContent: "center" }}>
+          <Button type="primary" onClick={handleSubmit}>
+            Merge Patients
+          </Button>
+        </Space>
+      </Form>
 
       {/* Loading and Error Messages */}
       {loading && <Loader />}
