@@ -1,24 +1,18 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  Breadcrumbs,
-  Card,
-  CardContent,
-  CardHeader,
-  Button,
-  Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-} from "@mui/material";
 import { Link } from "react-router-dom";
 import { bulkCreateDepartments } from "../../../store/management/departmentSlice";
-import Message from "../../../components/Message";
-import Loader from "../../../components/Loader";
+import {
+  Breadcrumb,
+  Card,
+  Upload,
+  Button,
+  Table,
+  Typography,
+  message,
+  Spin,
+} from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 
 const DepartmentBulkUpload = () => {
   const [file, setFile] = useState(null);
@@ -28,10 +22,16 @@ const DepartmentBulkUpload = () => {
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.getDepartments);
 
+  const handleFileChange = (info) => {
+    if (info.file.status === "done" || info.file.status === "removed") {
+      setFile(info.file.originFileObj || null);
+    }
+  };
+
   const submitHandler = (e) => {
     e.preventDefault();
     if (!file) {
-      alert("Please select a file before uploading.");
+      message.warning("Please select a file before uploading.");
       return;
     }
 
@@ -40,92 +40,77 @@ const DepartmentBulkUpload = () => {
       .then((response) => {
         setUploadMessage(response.message);
         setNotCreatedDepartments(response.not_created || []);
+        message.success("File uploaded successfully!");
       })
       .catch((err) => {
+        message.error("Upload failed.");
         console.error("Upload failed:", err);
       });
   };
 
+  const columns = [
+    {
+      title: "#",
+      dataIndex: "index",
+      key: "index",
+      render: (_, __, index) => index + 1,
+    },
+    { title: "First Name", dataIndex: "first_name", key: "first_name" },
+    { title: "Last Name", dataIndex: "last_name", key: "last_name" },
+    { title: "Error", dataIndex: "error", key: "error" },
+  ];
+
   return (
     <div style={{ maxWidth: "800px", margin: "auto", marginTop: "20px" }}>
       {/* Breadcrumb Navigation */}
-      <Breadcrumbs aria-label="breadcrumb" sx={{ marginBottom: 2 }}>
-        <Link
-          to="/dashboard"
-          style={{ textDecoration: "none", color: "inherit" }}
+      <Breadcrumb style={{ marginBottom: 16 }}>
+        <Breadcrumb.Item>
+          <Link to="/dashboard">Home</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <Link to="/management/departments">Departments</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>Bulk Upload</Breadcrumb.Item>
+      </Breadcrumb>
+
+      <Card title="Bulk Upload Departments">
+        {error && <Typography.Text type="danger">{error}</Typography.Text>}
+        {loading && <Spin style={{ display: "block", margin: "auto" }} />}
+        {uploadMessage && (
+          <Typography.Text type="success">{uploadMessage}</Typography.Text>
+        )}
+
+        <Upload
+          beforeUpload={() => false}
+          onChange={handleFileChange}
+          maxCount={1}
+          accept=".xlsx,.xls"
         >
-          Home
-        </Link>
-        <Link
-          to="/management/departments"
-          style={{ textDecoration: "none", color: "inherit" }}
+          <Button icon={<UploadOutlined />}>Select File</Button>
+        </Upload>
+
+        <Button
+          type="primary"
+          onClick={submitHandler}
+          style={{ marginTop: "10px" }}
+          block
         >
-          Departments
-        </Link>
-        <Typography color="textPrimary">Department details</Typography>
-      </Breadcrumbs>
-
-      <Card>
-        <CardHeader
-          title={<Typography variant="h5">Bulk Upload Departments</Typography>}
-        />
-        <CardContent>
-          {error && <Message severity="error">{error}</Message>}
-          {loading && <Loader style={{ display: "block", margin: "auto" }} />}
-          {uploadMessage && (
-            <Message severity="success">{uploadMessage}</Message>
-          )}
-
-          <form onSubmit={submitHandler} style={{ marginTop: "20px" }}>
-            <input
-              type="file"
-              accept=".xlsx, .xls"
-              onChange={(e) => setFile(e.target.files[0])}
-              required
-              style={{ marginBottom: "15px" }}
-            />
-            <Button variant="contained" color="primary" type="submit" fullWidth>
-              Upload
-            </Button>
-          </form>
-
-          {notCreatedDepartments.length > 0 && (
-            <Card style={{ marginTop: "20px" }}>
-              <CardHeader
-                title={
-                  <Typography variant="h6">
-                    Failed Uploads ({notCreatedDepartments.length})
-                  </Typography>
-                }
-              />
-              <CardContent>
-                <TableContainer component={Paper}>
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell>#</TableCell>
-                        <TableCell>First Name</TableCell>
-                        <TableCell>Last Name</TableCell>
-                        <TableCell>Error</TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {notCreatedDepartments.map((department, index) => (
-                        <TableRow key={index}>
-                          <TableCell>{index + 1}</TableCell>
-                          <TableCell>{department.first_name}</TableCell>
-                          <TableCell>{department.last_name}</TableCell>
-                          <TableCell>{department.error}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </CardContent>
-            </Card>
-          )}
-        </CardContent>
+          Upload
+        </Button>
       </Card>
+
+      {notCreatedDepartments.length > 0 && (
+        <Card
+          title={`Failed Uploads (${notCreatedDepartments.length})`}
+          style={{ marginTop: "20px" }}
+        >
+          <Table
+            dataSource={notCreatedDepartments}
+            columns={columns}
+            rowKey={(record, index) => index}
+          />
+        </Card>
+      )}
     </div>
   );
 };

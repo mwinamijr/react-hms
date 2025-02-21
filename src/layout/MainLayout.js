@@ -1,128 +1,209 @@
-import { Outlet } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-
-// material-ui
-import { styled, useTheme } from "@mui/material/styles";
+import React, { useState, useEffect, useMemo } from "react";
+import { Link, Outlet, useLocation } from "react-router-dom";
 import {
-  AppBar,
-  Box,
-  CssBaseline,
-  Toolbar,
-  useMediaQuery,
-} from "@mui/material";
+  DashboardOutlined,
+  UserOutlined,
+  BankOutlined,
+  LogoutOutlined,
+  PlusCircleOutlined,
+  AppstoreOutlined,
+  HeartOutlined,
+  ExperimentOutlined,
+  MedicineBoxOutlined,
+  FileTextOutlined,
+  UsergroupAddOutlined,
+  MergeCellsOutlined,
+  InboxOutlined,
+  ShopOutlined,
+} from "@ant-design/icons";
 
-// project imports
-import { setMenu } from "./../store/slices/customizationSlice"; // Redux Toolkit slice
-import { drawerWidth } from "./../store/constant";
-import navigation from "./sidebar/menu-items";
-import Breadcrumbs from "./../components/extended/BreadCrumbs";
-import Header from "./header/Header";
-import Sidebar from "./sidebar/Sidebar";
+import { Layout, Menu, theme, Grid } from "antd";
 
-// assets
-import { RightOutlined } from "@ant-design/icons"; // Replacing Tabler IconChevronRight
+import HeaderComponent from "./header/ProfileSection";
+import NotificationSection from "./header/NotificationSection";
+import logo from "../assets/images/techdome.svg";
 
-// styles
-const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
-  ({ theme, open }) => ({
-    ...theme.typography.mainContent,
-    ...(!open && {
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
-      transition: theme.transitions.create("margin", {
-        easing: theme.transitions.easing.sharp,
-        duration: theme.transitions.duration.leavingScreen,
-      }),
-      [theme.breakpoints.up("md")]: {
-        marginLeft: -(drawerWidth - 20),
-        width: `calc(100% - ${drawerWidth}px)`,
-      },
-      [theme.breakpoints.down("md")]: {
-        marginLeft: "20px",
-        width: `calc(100% - ${drawerWidth}px)`,
-        padding: "16px",
-      },
-      [theme.breakpoints.down("sm")]: {
-        marginLeft: "10px",
-        width: `calc(100% - ${drawerWidth}px)`,
-        padding: "16px",
-        marginRight: "10px",
-      },
-    }),
-    ...(open && {
-      transition: theme.transitions.create("margin", {
-        easing: theme.transitions.easing.easeOut,
-        duration: theme.transitions.duration.enteringScreen,
-      }),
-      marginLeft: 0,
-      borderBottomLeftRadius: 0,
-      borderBottomRightRadius: 0,
-      width: `calc(100% - ${drawerWidth}px)`,
-      [theme.breakpoints.down("md")]: {
-        marginLeft: "20px",
-      },
-      [theme.breakpoints.down("sm")]: {
-        marginLeft: "10px",
-      },
-    }),
-  })
-);
-
-// ==============================|| MAIN LAYOUT ||============================== //
-
-const MainLayout = () => {
-  const theme = useTheme();
-  const matchDownMd = useMediaQuery(theme.breakpoints.down("md"));
-
-  // Handle left drawer
-  const leftDrawerOpened = useSelector((state) => state.customization.opened);
-  const dispatch = useDispatch();
-
-  const handleLeftDrawerToggle = () => {
-    dispatch(setMenu(!leftDrawerOpened)); // Using Redux Toolkit slice
-  };
-
-  return (
-    <Box sx={{ display: "flex" }}>
-      <CssBaseline />
-      {/* header */}
-      <AppBar
-        enableColorOnDark
-        position="fixed"
-        color="inherit"
-        elevation={0}
-        sx={{
-          bgcolor: theme.palette.background.default,
-          transition: leftDrawerOpened
-            ? theme.transitions.create("width")
-            : "none",
-        }}
-      >
-        <Toolbar>
-          <Header handleLeftDrawerToggle={handleLeftDrawerToggle} />
-        </Toolbar>
-      </AppBar>
-
-      {/* drawer */}
-      <Sidebar
-        drawerOpen={!matchDownMd ? leftDrawerOpened : !leftDrawerOpened}
-        drawerToggle={handleLeftDrawerToggle}
-      />
-
-      {/* main content */}
-      <Main open={leftDrawerOpened}>
-        {/* breadcrumb */}
-        <Breadcrumbs
-          separator={<RightOutlined />}
-          navigation={navigation}
-          icon
-          title
-          rightAlign
-        />
-        <Outlet />
-      </Main>
-    </Box>
-  );
+const icons = {
+  DashboardIcon: DashboardOutlined,
+  ManagementIcon: UsergroupAddOutlined,
+  MergeIcon: MergeCellsOutlined,
+  MovementIcon: InboxOutlined,
+  UserIcon: UserOutlined,
+  FinanceIcon: BankOutlined,
+  LogoutIcon: LogoutOutlined,
+  RegisterIcon: PlusCircleOutlined,
+  ManagementMainIcon: AppstoreOutlined,
+  MedicalIcon: HeartOutlined,
+  TreatmentIcon: ExperimentOutlined,
+  PharmacyIcon: MedicineBoxOutlined,
+  ReportIcon: FileTextOutlined,
+  DepartmentIcon: ShopOutlined,
 };
 
+const { Header, Content, Footer, Sider } = Layout;
+const { useBreakpoint } = Grid; // For responsive behavior
+
+function getItem(label, key, icon, children) {
+  return {
+    key,
+    icon,
+    children,
+    label,
+  };
+}
+const items = [
+  getItem(
+    <Link to="/dashboard">Dashboard</Link>,
+    "dashboard",
+    <icons.DashboardIcon />
+  ),
+  getItem("Management", "management", <icons.ManagementIcon />, [
+    getItem(
+      <Link to="/management/patients">Patients</Link>,
+      "patients",
+      <icons.UserIcon />
+    ),
+    getItem(
+      <Link to="/management/patients/merge">Merge Patients</Link>,
+      "merge",
+      <icons.MergeIcon />
+    ),
+    getItem(
+      <Link to="/management/patients/movement">Patient Movement</Link>,
+      "movement",
+      <icons.MovementIcon />
+    ),
+    getItem(
+      <Link to="/management/patients/visits">Assign Visit</Link>,
+      "visits",
+      <icons.RegisterIcon />
+    ),
+    getItem(
+      <Link to="/management/departments">Department</Link>,
+      "departments",
+      <icons.DepartmentIcon />
+    ),
+  ]),
+  getItem("Team", "sub2", <icons.MedicalIcon />, [
+    getItem("Team 1", "team1"),
+    getItem("Team 2", "team2"),
+  ]),
+  getItem(
+    "Hospital Management",
+    "hospitalManagement",
+    <icons.ManagementMainIcon />,
+    [getItem("Team 1", "6"), getItem("Team 2", "8")]
+  ),
+  getItem("Files", "9", <icons.UserIcon />),
+];
+
+const MainLayout = () => {
+  const [collapsed, setCollapsed] = useState(false);
+  const [openKeys, setOpenKeys] = useState([]);
+  const screens = useBreakpoint();
+  const location = useLocation();
+  const {
+    token: { colorBgContainer },
+  } = theme.useToken();
+
+  const selectedKeys = useMemo(() => [location.pathname], [location.pathname]);
+
+  // Automatically open the parent menu of the active menu item
+  useEffect(() => {
+    const parentKeys = selectedKeys[0].split("/").slice(1, -1).join("/");
+    setOpenKeys([parentKeys || ""]);
+  }, [selectedKeys]);
+
+  // Handle submenu open/close events to allow only one open submenu
+  const onOpenChange = (keys) => {
+    const latestOpenKey = keys.find((key) => !openKeys.includes(key));
+    setOpenKeys(latestOpenKey ? [latestOpenKey] : []);
+  };
+
+  // Automatically collapse sidebar on small screens
+  useEffect(() => {
+    if (screens.md === false) {
+      setCollapsed(true); // Collapse only on small screens
+    } else {
+      setCollapsed(false); // Ensure it stays open on larger screens
+    }
+  }, [screens]);
+
+  return (
+    <Layout
+      style={{
+        minHeight: "100vh",
+      }}
+    >
+      <Header
+        style={{
+          padding: "0 20px",
+          background: colorBgContainer,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+          <img
+            src={logo}
+            alt="techdometz"
+            style={{ height: 40, marginRight: 10 }}
+          />
+          <h1 style={{ color: "#fff", fontSize: "20px", margin: 0 }}>
+            Tech HMS
+          </h1>
+        </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+          <NotificationSection />
+          <HeaderComponent />
+        </div>
+      </Header>
+
+      <Layout>
+        <Sider
+          collapsible
+          collapsed={collapsed}
+          onCollapse={(value) => setCollapsed(value)}
+          breakpoint="md"
+          collapsedWidth={80}
+        >
+          <div className="demo-logo-vertical" />
+          <Menu
+            theme="dark"
+            defaultSelectedKeys={["1"]}
+            mode="inline"
+            selectedKeys={selectedKeys}
+            openKeys={openKeys}
+            onOpenChange={onOpenChange}
+            items={items}
+          />
+        </Sider>
+        <Layout>
+          <Content
+            style={{
+              margin: "0 4px",
+            }}
+          >
+            <div
+              style={{
+                padding: 24,
+                background: colorBgContainer,
+              }}
+            >
+              <Outlet />
+            </div>
+          </Content>
+          <Footer
+            style={{
+              textAlign: "center",
+            }}
+          >
+            Ant Design ©{new Date().getFullYear()} Created by Ant UED
+          </Footer>
+        </Layout>
+      </Layout>
+    </Layout>
+  );
+};
 export default MainLayout;

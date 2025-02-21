@@ -1,24 +1,21 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  Breadcrumbs,
-  TextField,
+  Breadcrumb,
+  Input,
   Button,
   Card,
-  CardContent,
-  Grid,
   Typography,
-  CircularProgress,
-  Snackbar,
-  Alert,
-} from "@mui/material";
+  Spin,
+  message,
+} from "antd";
 import { useDispatch, useSelector } from "react-redux";
-
 import {
   createDepartment,
   resetCreateState,
 } from "../../../store/management/departmentSlice";
-import Message from "../../../components/Message";
+
+const { Title } = Typography;
 
 const AddDepartment = () => {
   const dispatch = useDispatch();
@@ -33,15 +30,13 @@ const AddDepartment = () => {
     description: "",
   });
 
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-
   useEffect(() => {
     if (successCreate) {
-      setOpenSnackbar(true);
+      message.success("Department added successfully!");
       setTimeout(() => {
         dispatch(resetCreateState());
         navigate("/management/departments");
-      }, 2000); // Show message for 2 seconds before navigating
+      }, 2000);
     }
   }, [dispatch, successCreate, navigate]);
 
@@ -57,101 +52,62 @@ const AddDepartment = () => {
   return (
     <div>
       {/* Breadcrumb Navigation */}
-      <Breadcrumbs aria-label="breadcrumb" sx={{ marginBottom: 2 }}>
-        <Link
-          to="/dashboard"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          Home
-        </Link>
-        <Link
-          to="/management/departments"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          Departments
-        </Link>
-        <Typography color="textPrimary">Add Department</Typography>
-      </Breadcrumbs>
+      <Breadcrumb style={{ marginBottom: 16 }}>
+        <Breadcrumb.Item>
+          <Link to="/dashboard">Home</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>
+          <Link to="/management/departments">Departments</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>Add Department</Breadcrumb.Item>
+      </Breadcrumb>
 
-      <Card sx={{ padding: 3, maxWidth: 800, margin: "auto", marginTop: 4 }}>
-        <CardContent>
-          {/* Title */}
-          <Typography variant="h4" align="center" gutterBottom>
-            Add Department
-          </Typography>
-
-          {error && <Message severity="error">{error}</Message>}
-
-          {/* Form */}
-          <form onSubmit={handleSubmit}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Name"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Short Name"
-                  name="short_name"
-                  value={formData.short_name}
-                  onChange={handleChange}
-                />
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <TextField
-                  fullWidth
-                  label="Description"
-                  name="description"
-                  value={formData.description}
-                  onChange={handleChange}
-                  required
-                />
-              </Grid>
-
-              {/* Submit Button */}
-              <Grid item xs={12}>
-                <Button
-                  type="submit"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  disabled={loading}
-                  startIcon={
-                    loading ? (
-                      <CircularProgress size={24} color="inherit" />
-                    ) : null
-                  }
-                >
-                  {loading ? "Adding department ..." : "Add Department"}
-                </Button>
-              </Grid>
-            </Grid>
-          </form>
-        </CardContent>
-      </Card>
-
-      {/* Success Snackbar */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={2000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      <Card
+        style={{ maxWidth: 800, margin: "auto", marginTop: 24, padding: 24 }}
       >
-        <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity="success"
-          sx={{ width: "100%" }}
-        >
-          Department added successfully!
-        </Alert>
-      </Snackbar>
+        <Title level={3} style={{ textAlign: "center" }}>
+          Add Department
+        </Title>
+
+        {error && (
+          <div style={{ color: "red", textAlign: "center", marginBottom: 16 }}>
+            {error}
+          </div>
+        )}
+
+        {/* Form */}
+        <form onSubmit={handleSubmit}>
+          <div style={{ marginBottom: 16 }}>
+            <Input
+              placeholder="Name"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <Input
+              placeholder="Short Name"
+              name="short_name"
+              value={formData.short_name}
+              onChange={handleChange}
+            />
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <Input
+              placeholder="Description"
+              name="description"
+              value={formData.description}
+              onChange={handleChange}
+              required
+            />
+          </div>
+          <Button type="primary" htmlType="submit" block disabled={loading}>
+            {loading ? <Spin size="small" /> : "Add Department"}
+          </Button>
+        </form>
+      </Card>
     </div>
   );
 };

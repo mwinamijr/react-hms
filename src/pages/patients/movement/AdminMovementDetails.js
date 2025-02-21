@@ -228,7 +228,7 @@ const MovementDetails = ({ patient }) => {
         ]}
       />
       {visitLoading && <Loader />}
-      {error && <Message>{error}</Message>}
+      {error && <Message type="error">{error}</Message>}
       <Card bordered style={{ marginBottom: 20 }}>
         <Row gutter={24} align="middle">
           <Col xs={24} md={6} style={{ textAlign: "center" }}>

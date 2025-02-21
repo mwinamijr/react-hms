@@ -2,34 +2,22 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  Breadcrumbs,
+  Breadcrumb,
   Typography,
   Button,
-  IconButton,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  Paper,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  Button as MuiButton,
-} from "@mui/material";
+  Space,
+  Modal,
+  Input,
+  message,
+} from "antd";
 import {
-  Visibility,
-  Edit,
-  Delete,
-  PersonOff,
-  CloudUpload,
-} from "@mui/icons-material";
-
-import { PlusOutlined } from "@ant-design/icons";
-
+  EyeOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import Message from "../../../components/Message";
 import Loader from "../../../components/Loader";
 import {
@@ -37,9 +25,10 @@ import {
   deleteDepartment,
 } from "../../../store/management/departmentSlice";
 
+const { Search } = Input;
+
 const DepartmentList = () => {
   const dispatch = useDispatch();
-
   const { loading, error, departments } = useSelector(
     (state) => state.getDepartments
   );
@@ -54,6 +43,7 @@ const DepartmentList = () => {
   const handleDelete = (id) => {
     dispatch(deleteDepartment(id));
     setOpenDialog(false);
+    message.success("Department deleted successfully");
   };
 
   const handleClickOpen = (id) => {
@@ -67,135 +57,83 @@ const DepartmentList = () => {
 
   return (
     <div>
-      {/* Breadcrumb Navigation */}
-      <Breadcrumbs aria-label="breadcrumb" sx={{ marginBottom: 2 }}>
-        <Link
-          to="/dashboard"
-          style={{ textDecoration: "none", color: "inherit" }}
-        >
-          Home
-        </Link>
-        <Typography color="textPrimary">Departments</Typography>
-      </Breadcrumbs>
+      <Breadcrumb style={{ marginBottom: 16 }}>
+        <Breadcrumb.Item>
+          <Link to="/dashboard">Home</Link>
+        </Breadcrumb.Item>
+        <Breadcrumb.Item>Departments</Breadcrumb.Item>
+      </Breadcrumb>
 
-      {/* Title */}
-      <Typography variant="h4" align="center" gutterBottom>
+      <Typography.Title level={3} style={{ textAlign: "center" }}>
         Departments
-      </Typography>
+      </Typography.Title>
 
-      {/* Action Buttons */}
-      <div style={{ display: "flex", gap: "16px", marginBottom: "16px" }}>
-        <Button
-          variant="contained"
-          startIcon={<PlusOutlined />}
-          component={Link}
-          to="/management/departments/add"
-        >
-          Add Department
+      <Space style={{ marginBottom: 16 }}>
+        <Button type="primary" icon={<PlusOutlined />}>
+          <Link to="/management/departments/add">Add Department</Link>
         </Button>
-        <Button
-          variant="contained"
-          color="secondary"
-          startIcon={<CloudUpload />}
-          component={Link}
-          to="/management/departments/upload"
-        >
-          Bulk Upload
+        <Button type="default" icon={<UploadOutlined />}>
+          <Link to="/management/departments/upload">Bulk Upload</Link>
         </Button>
-      </div>
+      </Space>
 
-      {/* Search Bar */}
-      <TextField
-        fullWidth
-        variant="outlined"
-        label="Search Departments..."
-        style={{ marginBottom: "20px" }}
+      <Search
+        placeholder="Search Departments..."
+        enterButton
+        style={{ marginBottom: 20, width: "100%" }}
       />
 
-      {/* Error Message */}
-      {error && <Message severity="error">{error}</Message>}
-
-      {/* Loading Indicator */}
+      {error && <Message type="error">{error}</Message>}
       {loading ? (
         <Loader />
       ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead>
-              <TableRow>
-                <TableCell>Department ID</TableCell>
-                <TableCell>Department Name</TableCell>
-                <TableCell>Short Name</TableCell>
-                <TableCell>Description</TableCell>
-                <TableCell>Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {departments.length > 0 ? (
-                departments.map((department) => (
-                  <TableRow key={department.id}>
-                    <TableCell>{department?.id}</TableCell>
-                    <TableCell>{department?.name}</TableCell>
-                    <TableCell>{department?.short_name}</TableCell>
-                    <TableCell>{department?.description || "N/A"}</TableCell>
-                    <TableCell>
-                      <IconButton
-                        component={Link}
-                        to={`/management/departments/${department.id}`}
-                        color="primary"
-                      >
-                        <Visibility />
-                      </IconButton>
-                      <IconButton
-                        component={Link}
-                        to={`/management/departments/${department.id}/edit`}
-                        color="success"
-                      >
-                        <Edit />
-                      </IconButton>
-                      <IconButton
-                        color="error"
-                        onClick={() => handleClickOpen(department.id)}
-                      >
-                        <Delete />
-                      </IconButton>
-                    </TableCell>
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell colSpan={5} align="center">
-                    <PersonOff sx={{ fontSize: 50, color: "gray" }} />
-                    <Typography variant="body1" color="textSecondary">
-                      No departments found
-                    </Typography>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <Table dataSource={departments} rowKey="id" bordered>
+          <Table.Column title="Department ID" dataIndex="id" key="id" />
+          <Table.Column title="Department Name" dataIndex="name" key="name" />
+          <Table.Column
+            title="Short Name"
+            dataIndex="short_name"
+            key="short_name"
+          />
+          <Table.Column
+            title="Description"
+            dataIndex="description"
+            key="description"
+          />
+          <Table.Column
+            title="Actions"
+            key="actions"
+            render={(text, record) => (
+              <Space size="middle">
+                <Link to={`/management/departments/${record.id}`}>
+                  <EyeOutlined style={{ color: "blue" }} />
+                </Link>
+                <Link to={`/management/departments/${record.id}/edit`}>
+                  <EditOutlined style={{ color: "green" }} />
+                </Link>
+                <DeleteOutlined
+                  style={{ color: "red" }}
+                  onClick={() => handleClickOpen(record.id)}
+                />
+              </Space>
+            )}
+          />
+        </Table>
       )}
 
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Delete this department?</DialogTitle>
-        <DialogContent>
+      <Modal
+        title="Delete this department?"
+        visible={openDialog}
+        onOk={() => handleDelete(deleteDepartmentId)}
+        onCancel={handleCloseDialog}
+        okText="Confirm"
+        cancelText="Cancel"
+      >
+        <Typography.Paragraph>
           Are you sure you want to delete this department? This action cannot be
           undone.
-        </DialogContent>
-        <DialogActions>
-          <MuiButton onClick={handleCloseDialog} color="primary">
-            Cancel
-          </MuiButton>
-          <MuiButton
-            onClick={() => handleDelete(deleteDepartmentId)}
-            color="error"
-          >
-            Confirm
-          </MuiButton>
-        </DialogActions>
-      </Dialog>
+        </Typography.Paragraph>
+      </Modal>
     </div>
   );
 };

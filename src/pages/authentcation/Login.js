@@ -1,44 +1,37 @@
-import { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
-import { useTheme } from "@mui/material/styles";
 import {
-  Box,
+  Layout,
+  Row,
+  Col,
+  Card,
+  Form,
+  Input,
   Button,
   Checkbox,
-  Divider,
-  FormControl,
-  FormControlLabel,
-  Grid,
-  IconButton,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
-  Stack,
   Typography,
-  CircularProgress,
-  useMediaQuery,
-} from "@mui/material";
-import Visibility from "@mui/icons-material/Visibility";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
-import Message from "../../components/Message";
+  Divider,
+  Spin,
+  message,
+} from "antd";
+import {
+  EyeOutlined,
+  EyeInvisibleOutlined,
+  LoadingOutlined,
+} from "@ant-design/icons";
 import { login } from "../../store/user/userSlice";
-import Logo from "../../layout/header/LogoSection";
-import AuthFooter from "../../components/cards/AuthFooter";
-import AuthWrapper1 from "../../components/authentication/AuthWrapper1";
-import AuthCardWrapper from "../../components/authentication/AuthCardWrapper";
+import AuthFooter from "../../components/AuthFooter";
+import logo from "../../assets/images/techdome.svg";
+
+const { Title, Text } = Typography;
 
 const Login = () => {
-  const theme = useTheme();
-  const matchDownSM = useMediaQuery(theme.breakpoints.down("md"));
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { error, loading, userInfo } = useSelector((state) => state.getUsers);
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [checked, setChecked] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
+  const [form] = Form.useForm();
 
   useEffect(() => {
     if (userInfo) {
@@ -46,175 +39,110 @@ const Login = () => {
     }
   }, [userInfo, navigate]);
 
-  const handleLogin = (event) => {
-    event.preventDefault();
-    dispatch(login({ email, password }));
+  const handleLogin = (values) => {
+    dispatch(login({ email: values.email, password: values.password }));
   };
 
   return (
-    <AuthWrapper1>
-      <Grid
-        container
-        direction="column"
-        justifyContent="flex-end"
-        sx={{ minHeight: "100vh" }}
-      >
-        <Grid item xs={12}>
-          <Grid
-            container
-            justifyContent="center"
-            alignItems="center"
-            sx={{ minHeight: "calc(100vh - 68px)" }}
-          >
-            <Grid item sx={{ m: { xs: 1, sm: 3 }, mb: 0 }}>
-              <AuthCardWrapper>
-                <Grid
-                  container
-                  spacing={2}
-                  alignItems="center"
-                  justifyContent="center"
+    <Layout
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <Row justify="center" style={{ width: "100%" }}>
+        <Col xs={22} sm={18} md={12} lg={8}>
+          <Card bordered style={{ padding: "24px", textAlign: "center" }}>
+            {/* Logo */}
+            <div onClick={() => (window.location.href = "#")}>
+              <img
+                src={logo}
+                alt="techdometz"
+                style={{ height: 40, marginRight: 10 }}
+              />
+            </div>
+
+            <Title level={2} style={{ marginTop: "16px" }}>
+              Hi, Welcome Back
+            </Title>
+            <Text type="secondary">Enter your credentials to continue</Text>
+
+            {error && message.error(error)}
+
+            <Form
+              form={form}
+              layout="vertical"
+              onFinish={handleLogin}
+              style={{ marginTop: "24px" }}
+            >
+              <Form.Item
+                label="Email Address"
+                name="email"
+                rules={[{ required: true, message: "Please enter your email" }]}
+              >
+                <Input placeholder="Enter your email" />
+              </Form.Item>
+
+              {/* Password */}
+              <Form.Item
+                label="Password"
+                name="password"
+                rules={[
+                  { required: true, message: "Please enter your password" },
+                ]}
+              >
+                <Input.Password
+                  placeholder="Enter your password"
+                  iconRender={(visible) =>
+                    visible ? <EyeOutlined /> : <EyeInvisibleOutlined />
+                  }
+                />
+              </Form.Item>
+
+              {/* Remember Me & Forgot Password */}
+              <Row justify="space-between">
+                <Col>
+                  <Form.Item name="remember" valuePropName="checked" noStyle>
+                    <Checkbox defaultChecked>Remember me</Checkbox>
+                  </Form.Item>
+                </Col>
+                <Col>
+                  <Link to="/forgot-password">Forgot Password?</Link>
+                </Col>
+              </Row>
+
+              {/* Submit Button */}
+              <Form.Item>
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  block
+                  disabled={loading}
+                  icon={
+                    loading ? <Spin indicator={<LoadingOutlined />} /> : null
+                  }
                 >
-                  <Grid item sx={{ mb: 3 }}>
-                    <div onClick={() => (window.location.href = "#")}>
-                      {" "}
-                      <Logo />{" "}
-                    </div>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Stack alignItems="center" spacing={1}>
-                      <Typography
-                        color={theme.palette.secondary.main}
-                        variant={matchDownSM ? "h3" : "h2"}
-                      >
-                        Hi, Welcome Back
-                      </Typography>
-                      <Typography
-                        variant="caption"
-                        fontSize="16px"
-                        textAlign={matchDownSM ? "center" : "inherit"}
-                      >
-                        Enter your credentials to continue
-                      </Typography>
-                    </Stack>
-                  </Grid>
-                  <Grid item xs={12}>
-                    {error && <Message severity="error">{error}</Message>}
-                    <form onSubmit={handleLogin}>
-                      <FormControl
-                        fullWidth
-                        sx={{ ...theme.typography.customInput }}
-                      >
-                        <InputLabel htmlFor="email">Email Address</InputLabel>
-                        <OutlinedInput
-                          id="email"
-                          type="email"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          label="Email Address"
-                        />
-                      </FormControl>
-                      <FormControl
-                        fullWidth
-                        sx={{ ...theme.typography.customInput }}
-                      >
-                        <InputLabel htmlFor="password">Password</InputLabel>
-                        <OutlinedInput
-                          id="password"
-                          type={showPassword ? "text" : "password"}
-                          value={password}
-                          onChange={(e) => setPassword(e.target.value)}
-                          endAdornment={
-                            <InputAdornment position="end">
-                              <IconButton
-                                onClick={() => setShowPassword(!showPassword)}
-                                edge="end"
-                                size="large"
-                              >
-                                {showPassword ? (
-                                  <Visibility />
-                                ) : (
-                                  <VisibilityOff />
-                                )}
-                              </IconButton>
-                            </InputAdornment>
-                          }
-                          label="Password"
-                        />
-                      </FormControl>
-                      <Stack
-                        direction="row"
-                        alignItems="center"
-                        justifyContent="space-between"
-                        spacing={1}
-                      >
-                        <FormControlLabel
-                          control={
-                            <Checkbox
-                              checked={checked}
-                              onChange={(e) => setChecked(e.target.checked)}
-                              name="checked"
-                              color="primary"
-                            />
-                          }
-                          label="Remember me"
-                        />
-                        <Typography
-                          variant="subtitle1"
-                          color="secondary"
-                          sx={{ textDecoration: "none", cursor: "pointer" }}
-                        >
-                          Forgot Password?
-                        </Typography>
-                      </Stack>
-                      <Box sx={{ mt: 2 }}>
-                        <Button
-                          disableElevation
-                          disabled={loading}
-                          fullWidth
-                          size="large"
-                          type="submit"
-                          variant="contained"
-                          color="secondary"
-                          startIcon={
-                            loading ? (
-                              <CircularProgress size={20} color="inherit" />
-                            ) : null
-                          }
-                        >
-                          {loading ? "Signing in..." : "Sign in"}
-                        </Button>
-                      </Box>
-                    </form>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Divider />
-                  </Grid>
-                  <Grid
-                    item
-                    xs={12}
-                    container
-                    direction="column"
-                    alignItems="center"
-                  >
-                    <Typography
-                      component={Link}
-                      to="/pages/register/register3"
-                      variant="subtitle1"
-                      sx={{ textDecoration: "none" }}
-                    >
-                      Don&apos;t have an account?
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </AuthCardWrapper>
-            </Grid>
-          </Grid>
-        </Grid>
-        <Grid item xs={12} sx={{ m: 3, mt: 1 }}>
-          <AuthFooter />
-        </Grid>
-      </Grid>
-    </AuthWrapper1>
+                  {loading ? "Signing in..." : "Sign in"}
+                </Button>
+              </Form.Item>
+            </Form>
+
+            {/* Divider */}
+            <Divider />
+
+            {/* Sign Up Link */}
+            <Text>
+              Don't have an account? Contact your employer to get one.
+            </Text>
+          </Card>
+
+          {/* Footer */}
+          <AuthFooter style={{ marginTop: "24px", textAlign: "center" }} />
+        </Col>
+      </Row>
+    </Layout>
   );
 };
 
